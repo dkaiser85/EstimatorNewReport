@@ -1090,6 +1090,25 @@
                 alert('Thank you! Your report will be sent to your email shortly.');
             });
         });
+
+        console.log('Script loaded'); // Debug log
+        
+        const generateBtn = document.getElementById('generateReportBtn');
+        console.log('Button found:', generateBtn); // Debug log
+        
+        if (generateBtn) {
+            generateBtn.addEventListener('click', function() {
+                console.log('Button clicked'); // Debug log
+                const modal = document.getElementById('reportModal');
+                if (modal) {
+                    modal.style.display = 'block';
+                } else {
+                    console.log('Modal not found'); // Debug log
+                }
+            });
+        } else {
+            console.log('Button not found'); // Debug log
+        }
     });
 
     function showInstallPromotion() {
