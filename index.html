@@ -1261,7 +1261,7 @@ const closeModal = resultsModal.querySelector('.close-modal');
 
 // Function to handle form data submission
 async function handleSubmission(action) {
-    console.log('handleSubmission called with action:', action); // Debug log
+    console.log('handleSubmission called with action:', action);
     const form = document.getElementById('resultsForm');
     if (!form.checkValidity()) {
         form.reportValidity();
@@ -1289,19 +1289,37 @@ async function handleSubmission(action) {
             }
         };
 
-        console.log('Attempting to save data:', submissionData); // Debug log
-
         // Save to Firebase
-        const docRef = await db.collection('submissions').add(submissionData);
-        console.log('Document written with ID:', docRef.id); // Debug log
+        await db.collection('submissions').add(submissionData);
 
-        alert('Your results have been saved successfully!');
+        // Perform action based on button clicked
+        if (action === 'download') {
+            await generatePDF();
+        } else if (action === 'email') {
+            // Create mailto link with pre-filled data
+            const subject = encodeURIComponent('Your Culture MRI® Calculator Results');
+            const body = encodeURIComponent(`
+                Hello ${submissionData.name},
+
+                Here are your Culture MRI® Calculator results:
+
+                Overall Engagement: ${submissionData.results.overallEngagement}
+                Return on Labor: ${submissionData.results.returnOnLabor}
+                One Percent Shift Impact: ${submissionData.results.onePercentShift}
+                Lost Labor: ${submissionData.results.lostLabor}
+                Total Losses: ${submissionData.results.totalLosses}
+
+                Thank you for using the Culture MRI® Calculator!
+            `);
+            window.location.href = `mailto:${submissionData.email}?subject=${subject}&body=${body}`;
+        }
+
         resultsModal.style.display = 'none';
         resultsForm.reset();
 
     } catch (error) {
         console.error('Error in handleSubmission:', error);
-        alert('Error saving results: ' + error.message);
+        alert('Error processing your request: ' + error.message);
     }
 }
 
@@ -1428,7 +1446,7 @@ window.addEventListener('load', function() {
         apiKey: "AIzaSyD633p4rebsdUD0daRrd0dHIMh_n6hl2Ac",
         authDomain: "cmri-calculator.firebaseapp.com",
         projectId: "cmri-calculator",
-        storageBucket: "cmri-calculator.firebasestorage.app",
+        storageBucket: "cmri-calculator.firebasestorage.app",a
         messagingSenderId: "740570329582",
         appId: "1:740570329582:web:fb426b5875e64005239eff",
         measurementId: "G-FP80T226QJ"
