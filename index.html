@@ -1166,7 +1166,7 @@
         banner.className = 'install-banner';
         banner.innerHTML = `
             <div>Install this app on your device for easy access</div>
-            <button id="installBtn">Install</button>
+            <button id="installBtn">Install</button>            
             <button id="closeInstallBtn">✕</button>
         `;
         document.body.appendChild(banner);
@@ -1229,7 +1229,7 @@ shareForm.onsubmit = async (e) => {
 
     try {
         // Send to Google Sheets via Google Apps Script web app
-        const response = await fetch('https://script.google.com/macros/s/AKfycbzOLu_t25PrP8EzZXogo3PgpEROTwIGuBqcdrgL-jSSBOOQ3zRxIGsPFCI-9XbDIJT78g/exec', {
+        const response = await fetch('https://script.google.com/macros/s/AKfycbwCTDQ1i5F372mNAE2s79m9me0KrWBZ7v45KuI_V1djbdgWB8XLgKsvJ8FSzRWT55Wd3Q/exec, {
             method: 'POST',
             mode: 'no-cors',
             headers: {
@@ -1308,35 +1308,46 @@ async function generatePDF() {
     document.body.appendChild(container);
 
     try {
-        // Generate PDF
+        // Modify canvas generation settings
         const canvas = await html2canvas(container, {
-            scale: 2, // Higher resolution
-            backgroundColor: '#ffffff',
-            logging: false
+            scale: 2, // Increased for better quality
+            useCORS: true,
+            letterRendering: true, // Improves text rendering
+            allowTaint: true,
+            logging: false,
+            onrendered: function(canvas) {
+                canvas.getContext('2d').textRendering = "optimizeLegibility";
+            }
         });
 
+        // Modify PDF generation settings
         const imgWidth = 210; // A4 width in mm
         const pageHeight = 297; // A4 height in mm
         const imgHeight = canvas.height * imgWidth / canvas.width;
         
         const pdf = new jspdf.jsPDF({
-            orientation: imgHeight > pageHeight ? 'portrait' : 'portrait',
+            orientation: 'portrait',
             unit: 'mm',
-            format: 'a4'
+            format: 'a4',
+            compress: true,
+            precision: 4, // Increase precision for better text rendering
+            hotfixes: ["px_scaling"] // Add hotfix for scaling issues
         });
 
+        // Add image with better quality settings
         pdf.addImage(
-            canvas.toDataURL('image/png'), 
+            canvas.toDataURL('image/png', 1.0), // Highest quality
             'PNG', 
             0, 
             0, 
             imgWidth, 
             imgHeight,
-            '',
-            'FAST'
+            undefined,
+            'FAST',
+            0 // No rotation
         );
 
-        // Save the PDF
+        // Save with optimized filename
         pdf.save(`CMRI-Profit-Report-${new Date().toISOString().split('T')[0]}.pdf`);
     } catch (error) {
         console.error('Error generating PDF:', error);
