@@ -1268,16 +1268,16 @@ async function handleSubmission(action) {
     }
 
     try {
-        // Get form data with null checks
+        // Get form data with null checks and console logging
         const submissionData = {
             timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-            name: document.getElementById('name').value || '',
-            company: document.getElementById('company').value || '',
-            email: document.getElementById('email').value || '',
+            name: document.getElementById('name')?.value || '',
+            company: document.getElementById('company')?.value || '',
+            email: document.getElementById('email')?.value || '',
             calculatorInputs: {
-                laborSpend: document.getElementById('totalLaborCost').value || '0',
-                engagement: document.getElementById('employeeEngagement').value || '0',
-                turnover: document.getElementById('turnoverPercentage').value || '0'
+                laborSpend: document.getElementById('totalLaborCost')?.value || '0',
+                engagement: document.getElementById('employeeEngagement')?.value || '0',
+                turnover: document.getElementById('turnoverPercentage')?.value || '0'
             },
             results: {
                 overallEngagement: document.getElementById('engagementText')?.textContent || '0%',
@@ -1287,6 +1287,9 @@ async function handleSubmission(action) {
                 totalAnnualizedLosses: document.getElementById('totalAnnualizedLosses')?.textContent || '$0'
             }
         };
+
+        // Log the data being collected
+        console.log('Submission Data:', submissionData);
 
         // Save to Firebase
         await db.collection('submissions').add(submissionData);
