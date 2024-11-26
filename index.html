@@ -1284,7 +1284,7 @@ async function handleSubmission(action) {
                 returnOnLabor: document.getElementById('returnOnLaborText')?.textContent || '0%',
                 onePercentShift: document.getElementById('onePercentChange')?.textContent || '$0',
                 lostLabor: document.getElementById('lostLaborCost')?.textContent || '$0',
-                totalLosses: document.getElementById('totalAnnualizedLosses')?.textContent || '$0',
+                totalLosses: document.getElementById('totalLosses')?.textContent || '$0',
                 totalAnnualizedLosses: document.getElementById('totalAnnualizedLosses')?.textContent || '$0'
             }
         };
@@ -1436,49 +1436,26 @@ document.querySelector('.download-pdf').onclick = generatePDF;
 
 </script>
 
+<!-- Firebase Scripts -->
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
+<!-- Firebase Init -->
 <script>
-// Declare db in global scope
-let db;
-
-// Wait for Firebase scripts to load
-window.addEventListener('load', function() {
-    // Your web app's Firebase configuration
+    // Initialize Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyD633p4rebsdUD0daRrd0dHIMh_n6hl2Ac",
         authDomain: "cmri-calculator.firebaseapp.com",
         projectId: "cmri-calculator",
-        storageBucket: "cmri-calculator.firebasestorage.app",a
+        storageBucket: "cmri-calculator.firebasestorage.app",
         messagingSenderId: "740570329582",
         appId: "1:740570329582:web:fb426b5875e64005239eff",
         measurementId: "G-FP80T226QJ"
     };
 
-    // Initialize Firebase
+    // Initialize Firebase and get Firestore reference
     firebase.initializeApp(firebaseConfig);
-    // Assign to global db variable
-    db = firebase.firestore();
-
-    // Remove or comment out the test connection function
-    /* 
-    async function testFirebaseConnection() {
-        try {
-            const testResult = await db.collection('test').add({
-                timestamp: new Date(),
-                message: 'Test connection successful'
-            });
-            console.log('Firebase connection successful!', testResult.id);
-            alert('Firebase connection successful!');
-        } catch (error) {
-            console.error('Firebase connection error:', error);
-            alert('Firebase connection error: ' + error.message);
-        }
-    }
-    testFirebaseConnection();
-    */
-});
+    const db = firebase.firestore();
 </script>
 
 </body>
