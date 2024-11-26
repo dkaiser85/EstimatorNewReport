@@ -1261,7 +1261,6 @@ const closeModal = resultsModal.querySelector('.close-modal');
 
 // Function to handle form data submission
 async function handleSubmission(action) {
-    console.log('handleSubmission called with action:', action);
     const form = document.getElementById('resultsForm');
     if (!form.checkValidity()) {
         form.reportValidity();
@@ -1269,7 +1268,7 @@ async function handleSubmission(action) {
     }
 
     try {
-        // Create submission data
+        // Get form data
         const submissionData = {
             timestamp: firebase.firestore.FieldValue.serverTimestamp(),
             name: document.getElementById('name').value,
@@ -1285,14 +1284,18 @@ async function handleSubmission(action) {
                 returnOnLabor: document.getElementById('returnOnLaborText').textContent,
                 onePercentShift: document.getElementById('onePercentChange').textContent,
                 lostLabor: document.getElementById('lostLaborCost').textContent,
-                totalLosses: document.getElementById('totalAnnualizedLosses').textContent
+                totalLosses: document.getElementById('totalLosses').textContent,
+                totalAnnualizedLosses: document.getElementById('totalAnnualizedLosses').textContent
             }
         };
 
         // Save to Firebase
         await db.collection('submissions').add(submissionData);
+        
+        // Send to Google Sheets
+        await sendToGoogleSheets(submissionData);
 
-        // Perform action based on button clicked
+        // Perform user's requested action (PDF or Email)
         if (action === 'download') {
             await generatePDF();
         } else if (action === 'email') {
@@ -1308,6 +1311,7 @@ async function handleSubmission(action) {
                 One Percent Shift Impact: ${submissionData.results.onePercentShift}
                 Lost Labor: ${submissionData.results.lostLabor}
                 Total Losses: ${submissionData.results.totalLosses}
+                Total Annualized Losses with Turnover: ${submissionData.results.totalAnnualizedLosses}
 
                 Thank you for using the Culture MRI® Calculator!
             `);
@@ -1366,7 +1370,8 @@ async function generatePDF() {
         turnover: document.getElementById('turnoverPercentage').value,
         lostLabor: document.getElementById('lostLaborCost').textContent,
         onePercentChange: document.getElementById('onePercentChange').textContent,
-        totalLosses: document.getElementById('totalAnnualizedLosses').textContent
+        totalLosses: document.getElementById('totalLosses').textContent,
+        totalAnnualizedLosses: document.getElementById('totalAnnualizedLosses').textContent
     };
 
     // Create PDF directly
@@ -1415,7 +1420,8 @@ async function generatePDF() {
     pdf.text([
         `Lost Labor Cost: ${data.lostLabor}`,
         `1% Engagement Shift Impact: ${data.onePercentChange}`,
-        `Total Annualized Losses: ${data.totalLosses}`
+        `Total Losses: ${data.totalLosses}`,
+        `Total Annualized Losses with Turnover: ${data.totalAnnualizedLosses}`
     ], 20, 105);
 
     // Footer
