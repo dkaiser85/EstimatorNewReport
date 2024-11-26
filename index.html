@@ -882,7 +882,7 @@
 <div id="resultsModal" class="modal">
     <div class="modal-content results-modal">
         <span class="close-modal">&times;</span>
-        <h3>Get Your Complete Analysis</h3>
+        <h3>Download Your Analysis</h3>
         
         <form id="resultsForm">
             <div class="form-group">
@@ -893,16 +893,10 @@
                 <label for="company">Company *</label>
                 <input type="text" id="company" required>
             </div>
-            <div class="form-group">
-                <label for="email">Email *</label>
-                <input type="email" id="email" required>
-            </div>
+            
             <div class="modal-buttons">
-                <button type="button" class="action-button secondary-button" id="downloadPdfBtn">
+                <button type="button" class="action-button primary-button" id="downloadPdfBtn">
                     Download PDF Report
-                </button>
-                <button type="button" class="action-button primary-button" id="emailResultsBtn">
-                    Email Results to Me
                 </button>
             </div>
         </form>
@@ -1211,21 +1205,20 @@ const downloadPdfBtn = document.getElementById('downloadPdfBtn');
 const emailResultsBtn = document.getElementById('emailResultsBtn');
 const closeModal = resultsModal.querySelector('.close-modal');
 
-// Function to handle form data submission
-async function handleSubmission(action) {
-    const form = document.getElementById('resultsForm');
-    if (!form.checkValidity()) {
-        form.reportValidity();
-        return;
-    }
-
+// Replace all the submission handling code with this simplified version
+async function handleSubmission() {
     try {
-        // Get form data with null checks and console logging
+        const form = document.getElementById('resultsForm');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        // Save to Firebase
         const submissionData = {
             timestamp: firebase.firestore.FieldValue.serverTimestamp(),
             name: document.getElementById('name')?.value || '',
             company: document.getElementById('company')?.value || '',
-            email: document.getElementById('email')?.value || '',
             calculatorInputs: {
                 laborSpend: document.getElementById('totalLaborCost')?.value || '0',
                 engagement: document.getElementById('employeeEngagement')?.value || '0',
@@ -1240,76 +1233,47 @@ async function handleSubmission(action) {
             }
         };
 
-        // Log the data being collected
-        console.log('Submission Data:', submissionData);
-
-        // Save to Firebase
         await db.collection('submissions').add(submissionData);
-
-        // Perform user's requested action
-        if (action === 'download') {
-            await generatePDF();
-        } else if (action === 'email') {
-            const name = document.getElementById('name')?.value || '';
-            const email = document.getElementById('email')?.value || '';
-            const engagement = document.getElementById('employeeEngagement')?.value || '0';
-            const rol = document.getElementById('returnOnLaborText')?.textContent || '0%';
-            const impact = document.getElementById('onePercentChange')?.textContent || '$0';
-
-            const subject = encodeURIComponent('Your Culture MRI® Calculator Results');
-            const body = encodeURIComponent(`
-<!DOCTYPE html>
-<html>
-<body style="font-family: Arial, sans-serif; line-height: 1.6; margin: 0; padding: 20px; background: #f5f5f5; color: #173248;">
-    <div style="max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        <img src="https://static.showit.co/file/cbs1CLd_Sfa1i4yvaojOWQ/176740/cmr_blue_dk_2i.png" 
-             alt="The Culture MRI Logo" style="max-width: 250px; margin: 0 auto 30px; display: block;">
+        await generatePDF();
         
-        <div style="font-size: 16px; margin-bottom: 20px;">
-            Dear ${name},
-        </div>
-
-        <div style="margin-bottom: 30px;">
-            <p>Thank you for using The Culture MRI® calculator. Attached you'll find your detailed Profit Analysis Report highlighting the connection between employee engagement and your organization's profitability.</p>
-
-            <p>Key findings from your analysis:</p>
-            <ul style="padding-left: 20px; margin-bottom: 25px;">
-                <li style="margin-bottom: 10px;">Current Employee Engagement: ${engagement}%</li>
-                <li style="margin-bottom: 10px;">Return-on-Labor®: ${rol}</li>
-                <li style="margin-bottom: 10px;">Potential Annual Impact: ${impact}</li>
-            </ul>
-
-            <p>Ready to unlock your organization's full potential? Let's discuss how The Culture MRI® can help you transform these insights into measurable financial gains.</p>
-
-            <a href="https://theculturemri.com/schedule-a-demo" 
-               style="display: inline-block; background: #6666CC; color: white; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 500; margin: 20px 0;">
-                Schedule Your Demo →
-            </a>
-        </div>
-
-        <div style="font-size: 14px; color: #666; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
-            <p>Best regards,<br>
-            The Culture MRI® Team</p>
-            
-            <p style="font-size: 12px; color: #888;">
-                This email was sent to ${email}.<br>
-                © 2024 The Culture MRI®. All rights reserved.
-            </p>
-        </div>
-    </div>
-</body>
-</html>
-            `);
-
-            window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
-        }
-
         resultsModal.style.display = 'none';
         resultsForm.reset();
 
     } catch (error) {
         console.error('Error in handleSubmission:', error);
         alert('Error processing your request: ' + error.message);
+    }
+}
+
+// Update the button handlers
+document.getElementById('downloadPdfBtn').onclick = () => handleSubmission();
+
+// Modal handling
+const resultsModal = document.getElementById('resultsModal');
+const closeModal = resultsModal.querySelector('.close-modal');
+
+// Show modal when main button is clicked
+document.getElementById('downloadResultsBtn').onclick = () => {
+    const laborCost = document.getElementById('totalLaborCost').value;
+    const engagement = document.getElementById('employeeEngagement').value;
+    const turnover = document.getElementById('turnoverPercentage').value;
+
+    if (!laborCost || !engagement || !turnover) {
+        alert('Please fill in all calculator fields first.');
+        return;
+    }
+
+    resultsModal.style.display = 'block';
+};
+
+// Close modal handlers
+closeModal.onclick = () => {
+    resultsModal.style.display = 'none';
+}
+
+window.onclick = (e) => {
+    if (e.target === resultsModal) {
+        resultsModal.style.display = 'none';
     }
 }
 
