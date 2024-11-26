@@ -525,7 +525,27 @@
             }
         }
 
-        /* Modal Styles */
+        .share-section {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .share-button {
+            background-color: #6666CC;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        .share-button:hover {
+            background-color: #5555BB;
+        }
+
         .modal {
             display: none;
             position: fixed;
@@ -541,54 +561,127 @@
             position: relative;
             background-color: white;
             margin: 15% auto;
-            padding: 30px;
+            padding: 20px;
             width: 90%;
             max-width: 500px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 10px;
         }
 
         .close-modal {
             position: absolute;
             right: 20px;
-            top: 15px;
+            top: 10px;
             font-size: 24px;
             cursor: pointer;
-            color: #666;
         }
 
         .form-group {
             margin-bottom: 15px;
         }
 
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #6B7D8D;
+        }
+
         .form-group input {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
+            padding: 8px;
+            border: 1px solid #d3d3d3;
             border-radius: 4px;
-            font-size: 16px;
-            box-sizing: border-box;
         }
 
-        .form-group input:focus {
-            border-color: #6666CC;
-            outline: none;
+        .share-options {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
         }
 
-        .submit-btn {
-            width: 100%;
-            background-color: #6666CC;
-            color: white;
-            padding: 12px;
+        .share-options button {
+            flex: 1;
+            padding: 10px;
             border: none;
             border-radius: 4px;
-            font-size: 16px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
         }
 
-        .submit-btn:hover {
+        .share-submit {
+            background-color: #6666CC;
+            color: white;
+        }
+
+        .download-pdf {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 30px 0;
+            padding: 0 20px;
+        }
+
+        .action-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 160px;
+        }
+
+        .button-icon {
+            transition: transform 0.2s ease;
+        }
+
+        .share-button {
+            background-color: #6666CC;
+            color: white;
+        }
+
+        .share-button:hover {
             background-color: #5555BB;
+        }
+
+        .share-button:hover .button-icon {
+            transform: translateY(-1px);
+        }
+
+        .reset-button {
+            background-color: #f0f0f0;
+            color: #444;
+        }
+
+        .reset-button:hover {
+            background-color: #e4e4e4;
+        }
+
+        .reset-button:hover .button-icon {
+            transform: rotate(45deg);
+        }
+
+        /* Mobile optimization */
+        @media (max-width: 600px) {
+            .action-buttons {
+                flex-direction: column;
+                gap: 10px;
+                margin: 20px 0;
+            }
+
+            .action-button {
+                width: 100%;
+                padding: 14px 20px;
+            }
         }
 
     </style>
@@ -621,7 +714,7 @@
             <label for="employeeEngagement">
                 Estimated Employee Engagement (%)
                 <span class="info-icon">i
-                    <span class="tooltip">According to Gallup, the annual employee engagement for the US is 33%, Global is 23%, and Best-Practice Organizations is 70%.</span>
+                    <span class="tooltip">2024 US employee engagement (Gallup): USA: 33%, Worldwide: 23%, Best Practice Orgs: 70% </span>
                 </span>
             </label>
             <input type="number" id="employeeEngagement" placeholder="Enter estimated employee engagement" min="0" max="100">
@@ -632,7 +725,7 @@
             <label for="turnoverPercentage">
                 Projected Turnover Percentage (%)
                 <span class="info-icon">i
-                    <span class="tooltip">The expected percentage of employees who will leave the organization within the next year.</span>
+                    <span class="tooltip">Current total estimated percentage of employees.</span>
                 </span>
             </label>
             <input type="number" id="turnoverPercentage" placeholder="Enter projected turnover percentage" min="0" max="100">
@@ -645,7 +738,7 @@
             <h3>
                 Overall Engagement
                 <span class="info-icon">i
-                    <span class="tooltip">This reflects the extent to which the organization meets the emotional, intellectual, and practical needs of its employees, ensuring they are supported, valued, and aligned with the organization’s goals. Addressing these needs directly drives their investment and motivation to contribute to success.</span>
+                    <span class="tooltip">Estimate of how well employees can excel. Represents how much they feel supported, valued and aligned with the organization’s goals and objectives.</span>
                 </span>
             </h3>
             <div class="gauge">
@@ -667,7 +760,7 @@
             <h3>
                 Return-On-Labor®
                 <span class="info-icon">i
-                    <span class="tooltip">This calculates the financial efficiency of labor by balancing employee engagement levels with their contributions to business outcomes.</span>
+                    <span class="tooltip">The financial efficiency of labor, based on employee engagement and ability to contribute to expected business outcomes.</span>
                 </span>
             </h3>
             <div class="gauge">
@@ -691,7 +784,7 @@
             <h3>
                 A 1% Shift in Engagement is worth
                 <span class="info-icon">i
-                    <span class="tooltip">The financial and operational impact of improving overall employee engagement by just 1%. This demonstrates how even small changes in engagement can significantly affect productivity, retention, and organizational profitability.</span>
+                    <span class="tooltip">Financial impact of increasing engagement by 1%.</span>
                 </span>
             </h3>
             <p class="green" id="onePercentChange">--</p>
@@ -702,7 +795,7 @@
             <h3>
                 Annualized Lost Labor
                 <span class="info-icon">i
-                    <span class="tooltip">The annual cost of underutilized potential within the workforce, calculated based on the gap between employees’ contributions and the organization’s investment in labor.</span>
+                    <span class="tooltip">Cost of underutilized employee potential (the gap between employee contributions and the labor investment).</span>
                 </span>
             </h3>
             <p class="red" id="lostLaborCost">--</p>
@@ -713,17 +806,25 @@
             <h3>
                 Annualized Total Losses with Turnover
                 <span class="info-icon">i
-                    <span class="tooltip">It represents the full annual cost to profitability, combining lost productivity from disengagement with the additional expenses and disruptions caused by workforce turnover.</span>
+                    <span class="tooltip">Total annual cost of lost productivity from disengagement and turnover.</span>
                 </span>
             </h3>
             <p class="red" id="totalAnnualizedLosses">--</p>
         </div>
     </div>
 
-    <!-- Add Generate Report Button Here -->
-    <div style="text-align: center; margin: 30px 0;">
-        <button id="generateReportBtn" style="background-color: #6666CC; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: 500;">
-            Generate Profitability Analysis
+    <div class="action-buttons">
+        <button id="shareResultsBtn" class="action-button share-button">
+            <svg class="button-icon" viewBox="0 0 24 24" width="18" height="18">
+                <path fill="currentColor" d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/>
+            </svg>
+            Share Results
+        </button>
+        <button id="resetButton" class="action-button reset-button">
+            <svg class="button-icon" viewBox="0 0 24 24" width="18" height="18">
+                <path fill="currentColor" d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+            </svg>
+            Reset Calculator
         </button>
     </div>
 
@@ -740,25 +841,27 @@
     </div>
 </div>
 
-<!-- Add this modal HTML -->
-<div id="reportModal" class="modal">
+<div id="shareModal" class="modal">
     <div class="modal-content">
         <span class="close-modal">&times;</span>
-        <h3 style="text-align: center; color: #333; margin-bottom: 20px;">Generate Your Profitability Analysis</h3>
-        <form id="reportForm">
+        <h3>Share Your Results</h3>
+        <form id="shareForm">
             <div class="form-group">
-                <input type="text" id="firstName" placeholder="First Name" required>
+                <label for="name">Name *</label>
+                <input type="text" id="name" required>
             </div>
             <div class="form-group">
-                <input type="text" id="lastName" placeholder="Last Name" required>
+                <label for="company">Company *</label>
+                <input type="text" id="company" required>
             </div>
             <div class="form-group">
-                <input type="text" id="company" placeholder="Company" required>
+                <label for="email">Email *</label>
+                <input type="email" id="email" required>
             </div>
-            <div class="form-group">
-                <input type="email" id="email" placeholder="Email Address" required>
+            <div class="share-options">
+                <button type="submit" class="share-submit">Share Results</button>
+                <button type="button" class="download-pdf">Download PDF</button>
             </div>
-            <button type="submit" class="submit-btn">Generate Report</button>
         </form>
     </div>
 </div>
@@ -782,7 +885,16 @@
         const onePercentChangeEl = document.getElementById('onePercentChange');
         const totalAnnualizedLossesEl = document.getElementById('totalAnnualizedLosses');
 
-        
+        const resetButton = document.getElementById('resetButton');
+        resetButton.addEventListener('click', function() {
+            // Clear all input fields
+            inputLaborCost.value = '';
+            inputEngagement.value = '';
+            inputTurnover.value = '';
+            
+            // Reset all calculations and displays
+            resetGauges();
+        });
 
         // Initialize gauges and displays
         calculateMetrics();
@@ -1047,68 +1159,6 @@
         }
 
         setupTooltips();
-
-        // Add to your existing JavaScript
-        document.addEventListener('DOMContentLoaded', function() {
-            const modal = document.getElementById('reportModal');
-            const generateBtn = document.getElementById('generateReportBtn');
-            const closeBtn = document.querySelector('.close-modal');
-            const reportForm = document.getElementById('reportForm');
-
-            // Open modal
-            generateBtn.addEventListener('click', function() {
-                modal.style.display = 'block';
-            });
-
-            // Close modal
-            closeBtn.addEventListener('click', function() {
-                modal.style.display = 'none';
-            });
-
-            // Close modal when clicking outside
-            window.addEventListener('click', function(event) {
-                if (event.target === modal) {
-                    modal.style.display = 'none';
-                }
-            });
-
-            // Handle form submission
-            reportForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                const formData = {
-                    firstName: document.getElementById('firstName').value,
-                    lastName: document.getElementById('lastName').value,
-                    company: document.getElementById('company').value,
-                    email: document.getElementById('email').value
-                };
-
-                console.log('Form submitted:', formData);
-                // Here we'll add the code to send to Google Sheets
-                
-                modal.style.display = 'none';
-                alert('Thank you! Your report will be sent to your email shortly.');
-            });
-        });
-
-        console.log('Script loaded'); // Debug log
-        
-        const generateBtn = document.getElementById('generateReportBtn');
-        console.log('Button found:', generateBtn); // Debug log
-        
-        if (generateBtn) {
-            generateBtn.addEventListener('click', function() {
-                console.log('Button clicked'); // Debug log
-                const modal = document.getElementById('reportModal');
-                if (modal) {
-                    modal.style.display = 'block';
-                } else {
-                    console.log('Modal not found'); // Debug log
-                }
-            });
-        } else {
-            console.log('Button not found'); // Debug log
-        }
     });
 
     function showInstallPromotion() {
@@ -1134,6 +1184,221 @@
             banner.remove();
         });
     }
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script>
+// Add this inside your existing DOMContentLoaded event listener
+const shareModal = document.getElementById('shareModal');
+const shareBtn = document.getElementById('shareResultsBtn');
+const closeModal = document.querySelector('.close-modal');
+const shareForm = document.getElementById('shareForm');
+
+shareBtn.onclick = () => {
+    shareModal.style.display = 'block';
+}
+
+closeModal.onclick = () => {
+    shareModal.style.display = 'none';
+}
+
+window.onclick = (e) => {
+    if (e.target === shareModal) {
+        shareModal.style.display = 'none';
+    }
+}
+
+shareForm.onsubmit = async (e) => {
+    e.preventDefault();
+    
+    // Gather all the data
+    const formData = {
+        name: document.getElementById('name').value,
+        company: document.getElementById('company').value,
+        email: document.getElementById('email').value,
+        laborCost: inputLaborCost.value,
+        engagement: inputEngagement.value,
+        turnover: inputTurnover.value,
+        lostLabor: lostLaborCostEl.textContent,
+        onePercentChange: onePercentChangeEl.textContent,
+        totalLosses: totalAnnualizedLossesEl.textContent,
+        timestamp: new Date().toISOString()
+    };
+
+    try {
+        // Send to Google Sheets via Google Apps Script web app
+        const response = await fetch('https://script.google.com/macros/s/AKfycbzOLu_t25PrP8EzZXogo3PgpEROTwIGuBqcdrgL-jSSBOOQ3zRxIGsPFCI-9XbDIJT78g/exec', {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        });
+
+        // Show success message
+        alert('Results shared successfully!');
+        shareModal.style.display = 'none';
+    } catch (error) {
+        console.error('Error sharing results:', error);
+        alert('Error sharing results. Please try again.');
+    }
+};
+
+// PDF Generation
+document.querySelector('.download-pdf').onclick = async () => {
+    const element = document.querySelector('.calculator-container');
+    const canvas = await html2canvas(element);
+    const imgData = canvas.toDataURL('image/png');
+    
+    const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'px',
+        format: [canvas.width, canvas.height]
+    });
+    
+    pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+    pdf.save('profit-estimator-report.pdf');
+};
+</script>
+
+<script>
+// Add this function after your existing JavaScript
+async function generatePDF() {
+    // Create a clone of the calculator container to modify
+    const container = document.querySelector('.calculator-container').cloneNode(true);
+    
+    // Remove input section and buttons from the clone
+    const inputSection = container.querySelector('.input-section');
+    const actionButtons = container.querySelector('.action-buttons');
+    inputSection.remove();
+    actionButtons.remove();
+
+    // Add the current date to the report
+    const dateDiv = document.createElement('div');
+    dateDiv.style.textAlign = 'right';
+    dateDiv.style.marginBottom = '20px';
+    dateDiv.style.color = '#6B7D8D';
+    dateDiv.innerHTML = new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+    container.insertBefore(dateDiv, container.firstChild);
+
+    // Add summary of inputs
+    const inputSummary = document.createElement('div');
+    inputSummary.style.marginBottom = '30px';
+    inputSummary.style.padding = '20px';
+    inputSummary.style.backgroundColor = '#f8f9fa';
+    inputSummary.style.borderRadius = '8px';
+    inputSummary.innerHTML = `
+        <h3 style="margin-top: 0; color: #333333;">Input Summary</h3>
+        <p style="margin: 5px 0; color: #6B7D8D;">Total Labor Spend: ${document.getElementById('totalLaborCost').value}</p>
+        <p style="margin: 5px 0; color: #6B7D8D;">Employee Engagement: ${document.getElementById('employeeEngagement').value}%</p>
+        <p style="margin: 5px 0; color: #6B7D8D;">Turnover Rate: ${document.getElementById('turnoverPercentage').value}%</p>
+    `;
+    container.insertBefore(inputSummary, container.querySelector('.results-section'));
+
+    // Temporarily append the clone to the document for html2canvas
+    container.style.position = 'absolute';
+    container.style.left = '-9999px';
+    document.body.appendChild(container);
+
+    try {
+        // Generate PDF
+        const canvas = await html2canvas(container, {
+            scale: 2, // Higher resolution
+            backgroundColor: '#ffffff',
+            logging: false
+        });
+
+        const imgWidth = 210; // A4 width in mm
+        const pageHeight = 297; // A4 height in mm
+        const imgHeight = canvas.height * imgWidth / canvas.width;
+        
+        const pdf = new jspdf.jsPDF({
+            orientation: imgHeight > pageHeight ? 'portrait' : 'portrait',
+            unit: 'mm',
+            format: 'a4'
+        });
+
+        pdf.addImage(
+            canvas.toDataURL('image/png'), 
+            'PNG', 
+            0, 
+            0, 
+            imgWidth, 
+            imgHeight,
+            '',
+            'FAST'
+        );
+
+        // Save the PDF
+        pdf.save(`CMRI-Profit-Report-${new Date().toISOString().split('T')[0]}.pdf`);
+    } catch (error) {
+        console.error('Error generating PDF:', error);
+        alert('Error generating PDF. Please try again.');
+    } finally {
+        // Clean up
+        document.body.removeChild(container);
+    }
+}
+
+// Update the click handlers
+document.querySelector('.download-pdf').onclick = generatePDF;
+
+// Update the share form submission
+shareForm.onsubmit = async (e) => {
+    e.preventDefault();
+    
+    const formData = {
+        name: document.getElementById('name').value,
+        company: document.getElementById('company').value,
+        email: document.getElementById('email').value,
+        laborCost: document.getElementById('totalLaborCost').value,
+        engagement: document.getElementById('employeeEngagement').value,
+        turnover: document.getElementById('turnoverPercentage').value,
+        lostLabor: document.getElementById('lostLaborCost').textContent,
+        onePercentChange: document.getElementById('onePercentChange').textContent,
+        totalLosses: document.getElementById('totalAnnualizedLosses').textContent,
+        timestamp: new Date().toISOString()
+    };
+
+    try {
+        // Show loading state
+        const submitButton = shareForm.querySelector('.share-submit');
+        const originalText = submitButton.textContent;
+        submitButton.textContent = 'Sharing...';
+        submitButton.disabled = true;
+
+        // Send to Google Sheets
+        await fetch('YOUR_GOOGLE_SCRIPT_URL', {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        });
+
+        // Generate and send PDF
+        await generatePDF();
+
+        // Show success message
+        alert('Results shared successfully!');
+        shareModal.style.display = 'none';
+    } catch (error) {
+        console.error('Error sharing results:', error);
+        alert('Error sharing results. Please try again.');
+    } finally {
+        // Reset button state
+        submitButton.textContent = originalText;
+        submitButton.disabled = false;
+    }
+};
 </script>
 
 </body>
