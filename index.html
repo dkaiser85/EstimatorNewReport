@@ -1298,21 +1298,58 @@ async function handleSubmission(action) {
         if (action === 'download') {
             await generatePDF();
         } else if (action === 'email') {
+            const name = document.getElementById('name')?.value || '';
+            const email = document.getElementById('email')?.value || '';
+            const engagement = document.getElementById('employeeEngagement')?.value || '0';
+            const rol = document.getElementById('returnOnLaborText')?.textContent || '0%';
+            const impact = document.getElementById('onePercentChange')?.textContent || '$0';
+
             const subject = encodeURIComponent('Your Culture MRI® Calculator Results');
             const body = encodeURIComponent(`
-                Hello ${submissionData.name},
+<!DOCTYPE html>
+<html>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; margin: 0; padding: 20px; background: #f5f5f5; color: #173248;">
+    <div style="max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <img src="https://static.showit.co/file/cbs1CLd_Sfa1i4yvaojOWQ/176740/cmr_blue_dk_2i.png" 
+             alt="The Culture MRI Logo" style="max-width: 250px; margin: 0 auto 30px; display: block;">
+        
+        <div style="font-size: 16px; margin-bottom: 20px;">
+            Dear ${name},
+        </div>
 
-                Here are your Culture MRI® Calculator results:
+        <div style="margin-bottom: 30px;">
+            <p>Thank you for using The Culture MRI® calculator. Attached you'll find your detailed Profit Analysis Report highlighting the connection between employee engagement and your organization's profitability.</p>
 
-                Overall Engagement: ${submissionData.results.overallEngagement}
-                Return on Labor: ${submissionData.results.returnOnLabor}
-                One Percent Shift Impact: ${submissionData.results.onePercentShift}
-                Lost Labor: ${submissionData.results.lostLabor}
-                Total Annualized Losses with Turnover: ${submissionData.results.totalAnnualizedLosses}
+            <p>Key findings from your analysis:</p>
+            <ul style="padding-left: 20px; margin-bottom: 25px;">
+                <li style="margin-bottom: 10px;">Current Employee Engagement: ${engagement}%</li>
+                <li style="margin-bottom: 10px;">Return-on-Labor®: ${rol}</li>
+                <li style="margin-bottom: 10px;">Potential Annual Impact: ${impact}</li>
+            </ul>
 
-                Thank you for using the Culture MRI® Calculator!
+            <p>Ready to unlock your organization's full potential? Let's discuss how The Culture MRI® can help you transform these insights into measurable financial gains.</p>
+
+            <a href="https://theculturemri.com/schedule-a-demo" 
+               style="display: inline-block; background: #6666CC; color: white; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 500; margin: 20px 0;">
+                Schedule Your Demo →
+            </a>
+        </div>
+
+        <div style="font-size: 14px; color: #666; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+            <p>Best regards,<br>
+            The Culture MRI® Team</p>
+            
+            <p style="font-size: 12px; color: #888;">
+                This email was sent to ${email}.<br>
+                © 2024 The Culture MRI®. All rights reserved.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
             `);
-            window.location.href = `mailto:${submissionData.email}?subject=${subject}&body=${body}`;
+
+            window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
         }
 
         resultsModal.style.display = 'none';
@@ -1362,11 +1399,15 @@ window.onclick = (e) => {
 async function generatePDF() {
     // Get the data with null checks
     const data = {
-        laborCost: document.getElementById('totalLaborCost')?.value || '0',
+        companyName: document.getElementById('company')?.value || 'Your Company',
+        reportDate: new Date().toLocaleDateString(),
+        laborSpend: document.getElementById('totalLaborCost')?.value || '0',
         engagement: document.getElementById('employeeEngagement')?.value || '0',
         turnover: document.getElementById('turnoverPercentage')?.value || '0',
+        overallEngagement: document.getElementById('engagementText')?.textContent || '0%',
+        returnOnLabor: document.getElementById('returnOnLaborText')?.textContent || '0%',
+        onePercentShift: document.getElementById('onePercentChange')?.textContent || '$0',
         lostLabor: document.getElementById('lostLaborCost')?.textContent || '$0',
-        onePercentChange: document.getElementById('onePercentChange')?.textContent || '$0',
         totalAnnualizedLosses: document.getElementById('totalAnnualizedLosses')?.textContent || '$0'
     };
 
@@ -1377,33 +1418,75 @@ async function generatePDF() {
         format: 'a4'
     });
 
-    // Add content to PDF
-    pdf.setFont("helvetica", "normal");
-    
-    // Header
+    // Add logo
+    const logoUrl = 'https://static.showit.co/file/JNQ0xT5W_YRPIk_uSDJ7-Q/176740/3.png';
+    await addImageToPdf(pdf, logoUrl, 105, 30, 60); // Centered at top
+
+    // Title
+    pdf.setFont("helvetica", "bold");
     pdf.setFontSize(24);
-    pdf.text("Culture MRI® Calculator Results", 105, 20, { align: "center" });
+    pdf.setTextColor(23, 50, 72); // #173248
+    pdf.text("Profit Analysis Report", 105, 70, { align: "center" });
+
+    // Report Description
+    pdf.setFontSize(11);
+    pdf.setFont("helvetica", "normal");
+    pdf.setTextColor(102, 102, 102);
+    const description = "This report highlights key metrics from The Culture MRI®, offering a glimpse into the measurable connection between employee engagement and profitability.";
+    pdf.text(wrapText(pdf, description, 170), 20, 90);
+
+    // Company Info Box
+    pdf.setDrawColor(238, 238, 238);
+    pdf.setFillColor(248, 249, 250);
+    pdf.rect(20, 120, 170, 25, 'F');
+    pdf.setTextColor(23, 50, 72);
+    pdf.text(`Generated for: ${data.companyName}`, 30, 130);
+    pdf.text(`Date: ${data.reportDate}`, 30, 138);
+
+    // Input Summary
+    pdf.setFontSize(18);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("Input Summary", 20, 170);
     
-    // Date
-    pdf.setFontSize(12);
-    pdf.setTextColor(107, 125, 141);
-    pdf.text(new Date().toLocaleDateString(), 195, 20, { align: "right" });
-
-    // Results
-    pdf.setFontSize(16);
-    pdf.setTextColor(51, 51, 51);
-    pdf.text("Your Results", 20, 40);
-
-    pdf.setFontSize(12);
-    pdf.setTextColor(107, 125, 141);
+    pdf.setFontSize(11);
+    pdf.setFont("helvetica", "normal");
     pdf.text([
-        `Total Labor Spend: ${data.laborCost}`,
+        `Total Labor Spend: $${data.laborSpend}`,
         `Employee Engagement: ${data.engagement}%`,
-        `Turnover Rate: ${data.turnover}%`,
-        `Lost Labor Cost: ${data.lostLabor}`,
-        `1% Engagement Shift Impact: ${data.onePercentChange}`,
+        `Current Turnover Rate: ${data.turnover}%`
+    ], 30, 185);
+
+    // Key Findings
+    pdf.addPage();
+    pdf.setFontSize(18);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("Key Findings", 20, 30);
+
+    // Financial Metrics
+    pdf.setFontSize(11);
+    pdf.setFont("helvetica", "normal");
+    pdf.setFillColor(248, 249, 250);
+    pdf.rect(20, 45, 170, 80, 'F');
+    
+    pdf.text([
+        `Overall Engagement: ${data.overallEngagement}`,
+        `Return-on-Labor®: ${data.returnOnLabor}`,
+        `A 1% Shift in Engagement is worth: ${data.onePercentShift}`,
+        `Annualized Lost Labor: ${data.lostLabor}`,
         `Total Annualized Losses with Turnover: ${data.totalAnnualizedLosses}`
-    ], 20, 55);
+    ], 30, 60);
+
+    // Next Steps Section
+    pdf.setFontSize(16);
+    pdf.setFont("helvetica", "bold");
+    pdf.setTextColor(102, 102, 204); // #6666CC
+    pdf.text("Unlock Your Full Potential with The Culture MRI®", 20, 140);
+
+    pdf.setFontSize(11);
+    pdf.setFont("helvetica", "normal");
+    pdf.setTextColor(68, 68, 68);
+    const nextSteps = "This report provides an estimated view of how workplace factors impact your engagement and profitability. To move beyond estimation, the full Culture MRI® dives deeper, diagnosing the specific factors suppressing performance and identifying targeted actions to reduce losses.";
+    pdf.text(wrapText(pdf, nextSteps, 170), 20, 155);
 
     // Footer
     pdf.setFontSize(10);
@@ -1414,9 +1497,39 @@ async function generatePDF() {
     pdf.save(`CMRI-Calculator-Results-${new Date().toISOString().split('T')[0]}.pdf`);
 }
 
-// Update the click handlers
-document.querySelector('.download-pdf').onclick = generatePDF;
+// Helper function to wrap text
+function wrapText(pdf, text, maxWidth) {
+    const words = text.split(' ');
+    let lines = [];
+    let currentLine = '';
 
+    words.forEach(word => {
+        const width = pdf.getStringUnitWidth(currentLine + ' ' + word) * pdf.getFontSize();
+        if (width > maxWidth) {
+            lines.push(currentLine);
+            currentLine = word;
+        } else {
+            currentLine += (currentLine ? ' ' : '') + word;
+        }
+    });
+    lines.push(currentLine);
+
+    return lines;
+}
+
+// Helper function to add images
+async function addImageToPdf(pdf, url, x, y, width) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+            const height = (img.height * width) / img.width;
+            pdf.addImage(img, 'PNG', x - (width/2), y, width, height);
+            resolve();
+        };
+        img.onerror = reject;
+        img.src = url;
+    });
+}
 </script>
 
 <!-- Firebase Scripts -->
