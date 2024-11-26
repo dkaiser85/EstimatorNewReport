@@ -1275,8 +1275,11 @@ const closeModal = resultsModal.querySelector('.close-modal');
 
 // Function to handle form data submission
 async function handleSubmission(action) {
+    console.log('handleSubmission started with action:', action);
+    
     const form = document.getElementById('resultsForm');
     if (!form.checkValidity()) {
+        console.log('Form validation failed');
         form.reportValidity();
         return;
     }
@@ -1297,6 +1300,8 @@ async function handleSubmission(action) {
         'action': action
     };
 
+    console.log('Form data collected:', formData);
+
     try {
         const button = action === 'download' ? 
             document.getElementById('downloadPdfBtn') : 
@@ -1305,14 +1310,21 @@ async function handleSubmission(action) {
         button.textContent = 'Processing...';
         button.disabled = true;
 
-        // Replace 'YOUR_GOOGLE_SCRIPT_URL' with your actual Google Apps Script Web App URL
-        const response = await fetch('https://script.google.com/macros/s/AKfycby7vm7oqxVsYGDWpwRRN4BUD-IyARFmVH-cXheVoW-bCboPIsgzXnohLQg6GZF3zvufEA/exec', {
+        console.log('Attempting to send data to Google Sheet...');
+        
+        // Make sure this URL is correct
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwoqFSctjPGebtprQq3S5J1U7tM6IZ0dCGI-xRWkFOlGpKs859JHpM4UHsYeB97JoAwNQ/exec';
+        console.log('Using Google Script URL:', GOOGLE_SCRIPT_URL);
+
+        const response = await fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(formData)
         });
+
+        console.log('Response from Google Sheet:', response);
 
         if (!response.ok) {
             throw new Error('Network response was not ok');
@@ -1329,7 +1341,7 @@ async function handleSubmission(action) {
         resultsForm.reset();
 
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Error in handleSubmission:', error);
         alert('There was an error processing your request. Please try again.');
     } finally {
         button.textContent = originalText;
@@ -1468,7 +1480,7 @@ shareForm.onsubmit = async (e) => {
         submitButton.disabled = true;
 
         // Send to Google Sheets
-        await fetch('https://script.google.com/macros/s/AKfycbyMVQnYzzV6em3WjvBjCftPuaq7baP3g7rj-_ccR8GWuJ5L9nmQ1d8gfqJ7nn-yLUpo-w/exec', {
+        await fetch('YOUR_GOOGLE_SCRIPT_URL', {
             method: 'POST',
             mode: 'no-cors',
             headers: {
