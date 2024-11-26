@@ -1250,6 +1250,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <script>
 // Add this inside your existing DOMContentLoaded event listener
@@ -1395,140 +1396,102 @@ window.onclick = (e) => {
 </script>
 
 <script>
-// Add this function after your existing JavaScript
 async function generatePDF() {
-    // Get the data with null checks
-    const data = {
-        companyName: document.getElementById('company')?.value || 'Your Company',
-        reportDate: new Date().toLocaleDateString(),
-        laborSpend: document.getElementById('totalLaborCost')?.value || '0',
+    try {
+        // Get the preview container
+        const container = document.createElement('div');
+        container.innerHTML = `
+            <div class="preview-container">
+                <div class="page">
+                    <h1>Profit Analysis Report</h1>
+                    <img src="https://static.showit.co/file/JNQ0xT5W_YRPIk_uSDJ7-Q/176740/3.png" 
+                         alt="The Culture MRI Logo" class="logo">
+                    <!-- ... rest of your HTML preview structure ... -->
+                </div>
+            </div>
+        `;
+
+        // Populate data
+        container.querySelector('#companyName').textContent = document.getElementById('company')?.value || 'Your Company';
+        container.querySelector('#reportDate').textContent = new Date().toLocaleDateString();
+        container.querySelector('#laborSpend').textContent = document.getElementById('totalLaborCost')?.value || '0';
+        container.querySelector('#engagement').textContent = document.getElementById('employeeEngagement')?.value || '0';
+        container.querySelector('#turnover').textContent = document.getElementById('turnoverPercentage')?.value || '0';
+        container.querySelector('#engagementValue').textContent = document.getElementById('engagementText')?.textContent || '0%';
+        container.querySelector('#rolValue').textContent = document.getElementById('returnOnLaborText')?.textContent || '0%';
+        container.querySelector('#onePercent').textContent = document.getElementById('onePercentChange')?.textContent || '$0';
+        container.querySelector('#lostLabor').textContent = document.getElementById('lostLaborCost')?.textContent || '$0';
+        container.querySelector('#totalLosses').textContent = document.getElementById('totalAnnualizedLosses')?.textContent || '$0';
+
+        // Convert to PDF
+        const pdf = new jspdf.jsPDF();
+        await html2pdf().from(container).set({
+            margin: [10, 10, 10, 10],
+            filename: `CMRI-Calculator-Results-${new Date().toISOString().split('T')[0]}.pdf`,
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        }).save();
+
+    } catch (error) {
+        console.error('Error generating PDF:', error);
+        alert('Error generating PDF: ' + error.message);
+    }
+}
+
+function createEmailBody(data) {
+    return `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px;">
+            <img src="https://static.showit.co/file/cbs1CLd_Sfa1i4yvaojOWQ/176740/cmr_blue_dk_2i.png" 
+                 alt="The Culture MRI Logo" style="max-width: 250px; margin: 0 auto 30px; display: block;">
+            
+            <div style="font-size: 16px; margin-bottom: 20px;">
+                Dear ${data.name},
+            </div>
+
+            <div style="margin-bottom: 30px;">
+                <p>Thank you for using The Culture MRI® calculator. Attached you'll find your detailed Profit Analysis Report highlighting the connection between employee engagement and your organization's profitability.</p>
+
+                <p>Key findings from your analysis:</p>
+                <ul style="padding-left: 20px; margin-bottom: 25px;">
+                    <li style="margin-bottom: 10px;">Current Employee Engagement: ${data.engagement}%</li>
+                    <li style="margin-bottom: 10px;">Return-on-Labor®: ${data.rol}</li>
+                    <li style="margin-bottom: 10px;">Potential Annual Impact: ${data.impact}</li>
+                </ul>
+
+                <p>Ready to unlock your organization's full potential? Let's discuss how The Culture MRI® can help you transform these insights into measurable financial gains.</p>
+
+                <a href="https://theculturemri.com/schedule-a-demo" 
+                   style="display: inline-block; background: #6666CC; color: white; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 500; margin: 20px 0;">
+                    Schedule Your Demo →
+                </a>
+            </div>
+
+            <div style="font-size: 14px; color: #666; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+                <p>Best regards,<br>
+                The Culture MRI® Team</p>
+                
+                <p style="font-size: 12px; color: #888;">
+                    This email was sent to ${data.email}.<br>
+                    © 2024 The Culture MRI®. All Rights Reserved.
+                </p>
+            </div>
+        </div>
+    `;
+}
+
+// Update handleSubmission for email
+if (action === 'email') {
+    const emailData = {
+        name: document.getElementById('name')?.value || '',
+        email: document.getElementById('email')?.value || '',
         engagement: document.getElementById('employeeEngagement')?.value || '0',
-        turnover: document.getElementById('turnoverPercentage')?.value || '0',
-        overallEngagement: document.getElementById('engagementText')?.textContent || '0%',
-        returnOnLabor: document.getElementById('returnOnLaborText')?.textContent || '0%',
-        onePercentShift: document.getElementById('onePercentChange')?.textContent || '$0',
-        lostLabor: document.getElementById('lostLaborCost')?.textContent || '$0',
-        totalAnnualizedLosses: document.getElementById('totalAnnualizedLosses')?.textContent || '$0'
+        rol: document.getElementById('returnOnLaborText')?.textContent || '0%',
+        impact: document.getElementById('onePercentChange')?.textContent || '$0'
     };
 
-    // Create PDF
-    const pdf = new jspdf.jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4'
-    });
-
-    // Add logo
-    const logoUrl = 'https://static.showit.co/file/JNQ0xT5W_YRPIk_uSDJ7-Q/176740/3.png';
-    await addImageToPdf(pdf, logoUrl, 105, 30, 60); // Centered at top
-
-    // Title
-    pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(24);
-    pdf.setTextColor(23, 50, 72); // #173248
-    pdf.text("Profit Analysis Report", 105, 70, { align: "center" });
-
-    // Report Description
-    pdf.setFontSize(11);
-    pdf.setFont("helvetica", "normal");
-    pdf.setTextColor(102, 102, 102);
-    const description = "This report highlights key metrics from The Culture MRI®, offering a glimpse into the measurable connection between employee engagement and profitability.";
-    pdf.text(wrapText(pdf, description, 170), 20, 90);
-
-    // Company Info Box
-    pdf.setDrawColor(238, 238, 238);
-    pdf.setFillColor(248, 249, 250);
-    pdf.rect(20, 120, 170, 25, 'F');
-    pdf.setTextColor(23, 50, 72);
-    pdf.text(`Generated for: ${data.companyName}`, 30, 130);
-    pdf.text(`Date: ${data.reportDate}`, 30, 138);
-
-    // Input Summary
-    pdf.setFontSize(18);
-    pdf.setFont("helvetica", "bold");
-    pdf.text("Input Summary", 20, 170);
-    
-    pdf.setFontSize(11);
-    pdf.setFont("helvetica", "normal");
-    pdf.text([
-        `Total Labor Spend: $${data.laborSpend}`,
-        `Employee Engagement: ${data.engagement}%`,
-        `Current Turnover Rate: ${data.turnover}%`
-    ], 30, 185);
-
-    // Key Findings
-    pdf.addPage();
-    pdf.setFontSize(18);
-    pdf.setFont("helvetica", "bold");
-    pdf.text("Key Findings", 20, 30);
-
-    // Financial Metrics
-    pdf.setFontSize(11);
-    pdf.setFont("helvetica", "normal");
-    pdf.setFillColor(248, 249, 250);
-    pdf.rect(20, 45, 170, 80, 'F');
-    
-    pdf.text([
-        `Overall Engagement: ${data.overallEngagement}`,
-        `Return-on-Labor®: ${data.returnOnLabor}`,
-        `A 1% Shift in Engagement is worth: ${data.onePercentShift}`,
-        `Annualized Lost Labor: ${data.lostLabor}`,
-        `Total Annualized Losses with Turnover: ${data.totalAnnualizedLosses}`
-    ], 30, 60);
-
-    // Next Steps Section
-    pdf.setFontSize(16);
-    pdf.setFont("helvetica", "bold");
-    pdf.setTextColor(102, 102, 204); // #6666CC
-    pdf.text("Unlock Your Full Potential with The Culture MRI®", 20, 140);
-
-    pdf.setFontSize(11);
-    pdf.setFont("helvetica", "normal");
-    pdf.setTextColor(68, 68, 68);
-    const nextSteps = "This report provides an estimated view of how workplace factors impact your engagement and profitability. To move beyond estimation, the full Culture MRI® dives deeper, diagnosing the specific factors suppressing performance and identifying targeted actions to reduce losses.";
-    pdf.text(wrapText(pdf, nextSteps, 170), 20, 155);
-
-    // Footer
-    pdf.setFontSize(10);
-    pdf.setTextColor(119, 119, 119);
-    pdf.text("© 2024 The Culture MRI®. All Rights Reserved.", 105, 280, { align: "center" });
-
-    // Save PDF
-    pdf.save(`CMRI-Calculator-Results-${new Date().toISOString().split('T')[0]}.pdf`);
-}
-
-// Helper function to wrap text
-function wrapText(pdf, text, maxWidth) {
-    const words = text.split(' ');
-    let lines = [];
-    let currentLine = '';
-
-    words.forEach(word => {
-        const width = pdf.getStringUnitWidth(currentLine + ' ' + word) * pdf.getFontSize();
-        if (width > maxWidth) {
-            lines.push(currentLine);
-            currentLine = word;
-        } else {
-            currentLine += (currentLine ? ' ' : '') + word;
-        }
-    });
-    lines.push(currentLine);
-
-    return lines;
-}
-
-// Helper function to add images
-async function addImageToPdf(pdf, url, x, y, width) {
-    return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => {
-            const height = (img.height * width) / img.width;
-            pdf.addImage(img, 'PNG', x - (width/2), y, width, height);
-            resolve();
-        };
-        img.onerror = reject;
-        img.src = url;
-    });
+    const subject = encodeURIComponent('Your Culture MRI® Calculator Results');
+    const body = encodeURIComponent(createEmailBody(emailData));
+    window.location.href = `mailto:${emailData.email}?subject=${subject}&body=${body}`;
 }
 </script>
 
