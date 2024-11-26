@@ -1268,24 +1268,24 @@ async function handleSubmission(action) {
     }
 
     try {
-        // Get form data
+        // Get form data with null checks
         const submissionData = {
             timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-            name: document.getElementById('name').value,
-            company: document.getElementById('company').value,
-            email: document.getElementById('email').value,
+            name: document.getElementById('name').value || '',
+            company: document.getElementById('company').value || '',
+            email: document.getElementById('email').value || '',
             calculatorInputs: {
-                laborSpend: document.getElementById('totalLaborCost').value,
-                engagement: document.getElementById('employeeEngagement').value,
-                turnover: document.getElementById('turnoverPercentage').value
+                laborSpend: document.getElementById('totalLaborCost').value || '0',
+                engagement: document.getElementById('employeeEngagement').value || '0',
+                turnover: document.getElementById('turnoverPercentage').value || '0'
             },
             results: {
-                overallEngagement: document.getElementById('engagementText').textContent,
-                returnOnLabor: document.getElementById('returnOnLaborText').textContent,
-                onePercentShift: document.getElementById('onePercentChange').textContent,
-                lostLabor: document.getElementById('lostLaborCost').textContent,
-                totalLosses: document.getElementById('totalLosses').textContent,
-                totalAnnualizedLosses: document.getElementById('totalAnnualizedLosses').textContent
+                overallEngagement: document.getElementById('engagementText')?.textContent || '0%',
+                returnOnLabor: document.getElementById('returnOnLaborText')?.textContent || '0%',
+                onePercentShift: document.getElementById('onePercentChange')?.textContent || '$0',
+                lostLabor: document.getElementById('lostLaborCost')?.textContent || '$0',
+                totalLosses: document.getElementById('totalAnnualizedLosses')?.textContent || '$0',
+                totalAnnualizedLosses: document.getElementById('totalAnnualizedLosses')?.textContent || '$0'
             }
         };
 
@@ -1295,11 +1295,10 @@ async function handleSubmission(action) {
         // Send to Google Sheets
         await sendToGoogleSheets(submissionData);
 
-        // Perform user's requested action (PDF or Email)
+        // Perform user's requested action
         if (action === 'download') {
             await generatePDF();
         } else if (action === 'email') {
-            // Create mailto link with pre-filled data
             const subject = encodeURIComponent('Your Culture MRI® Calculator Results');
             const body = encodeURIComponent(`
                 Hello ${submissionData.name},
@@ -1310,7 +1309,6 @@ async function handleSubmission(action) {
                 Return on Labor: ${submissionData.results.returnOnLabor}
                 One Percent Shift Impact: ${submissionData.results.onePercentShift}
                 Lost Labor: ${submissionData.results.lostLabor}
-                Total Losses: ${submissionData.results.totalLosses}
                 Total Annualized Losses with Turnover: ${submissionData.results.totalAnnualizedLosses}
 
                 Thank you for using the Culture MRI® Calculator!
