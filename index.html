@@ -1421,6 +1421,9 @@ document.querySelector('.download-pdf').onclick = generatePDF;
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
 <script>
+// Declare db in global scope
+let db;
+
 // Wait for Firebase scripts to load
 window.addEventListener('load', function() {
     // Your web app's Firebase configuration
@@ -1436,7 +1439,8 @@ window.addEventListener('load', function() {
 
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+    // Assign to global db variable
+    db = firebase.firestore();
 
     // Test connection
     async function testFirebaseConnection() {
