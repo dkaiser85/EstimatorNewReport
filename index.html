@@ -1294,7 +1294,7 @@ async function handleSubmission(action) {
         '1% Shift': document.getElementById('onePercentChange').textContent,
         'Annualized Lost Labor': document.getElementById('lostLaborCost').textContent,
         'Report PDF link': '',
-        'action': action // Add this to indicate whether to send email
+        'action': action
     };
 
     try {
@@ -1305,15 +1305,18 @@ async function handleSubmission(action) {
         button.textContent = 'Processing...';
         button.disabled = true;
 
-        // Send to Google Sheets
-        await fetch('YOUR_GOOGLE_SCRIPT_URL', {
+        // Replace 'YOUR_GOOGLE_SCRIPT_URL' with your actual Google Apps Script Web App URL
+        const response = await fetch('https://script.google.com/macros/s/AKfycby7vm7oqxVsYGDWpwRRN4BUD-IyARFmVH-cXheVoW-bCboPIsgzXnohLQg6GZF3zvufEA/exec', {
             method: 'POST',
-            mode: 'no-cors',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(formData)
         });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
 
         if (action === 'download') {
             await generatePDF();
@@ -1325,11 +1328,12 @@ async function handleSubmission(action) {
         resultsModal.style.display = 'none';
         resultsForm.reset();
 
-        button.textContent = originalText;
-        button.disabled = false;
     } catch (error) {
         console.error('Error:', error);
         alert('There was an error processing your request. Please try again.');
+    } finally {
+        button.textContent = originalText;
+        button.disabled = false;
     }
 }
 
@@ -1464,7 +1468,7 @@ shareForm.onsubmit = async (e) => {
         submitButton.disabled = true;
 
         // Send to Google Sheets
-        await fetch('YOUR_GOOGLE_SCRIPT_URL', {
+        await fetch('https://script.google.com/macros/s/AKfycbyMVQnYzzV6em3WjvBjCftPuaq7baP3g7rj-_ccR8GWuJ5L9nmQ1d8gfqJ7nn-yLUpo-w/exec', {
             method: 'POST',
             mode: 'no-cors',
             headers: {
