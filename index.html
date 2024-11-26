@@ -903,16 +903,6 @@
         <span class="close-modal">&times;</span>
         <h3>Get Your Complete Analysis</h3>
         
-        <div class="benefits-list">
-            <p>You'll receive:</p>
-            <ul>
-                <li>✓ Detailed PDF report</li>
-                <li>✓ Complete financial breakdown</li>
-                <li>✓ Industry comparisons</li>
-                <li>✓ Improvement recommendations</li>
-            </ul>
-        </div>
-
         <form id="resultsForm">
             <div class="form-group">
                 <label for="name">Name *</label>
@@ -1289,6 +1279,13 @@ async function handleSubmission(action) {
                 laborSpend: document.getElementById('totalLaborCost').value,
                 engagement: document.getElementById('employeeEngagement').value,
                 turnover: document.getElementById('turnoverPercentage').value
+            },
+            results: {
+                overallEngagement: document.getElementById('engagementText').textContent,
+                returnOnLabor: document.getElementById('returnOnLaborText').textContent,
+                onePercentShift: document.getElementById('onePercentChange').textContent,
+                lostLabor: document.getElementById('lostLaborCost').textContent,
+                totalLosses: document.getElementById('totalAnnualizedLosses').textContent
             }
         };
 
