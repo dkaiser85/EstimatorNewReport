@@ -1460,6 +1460,30 @@ const firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+
+// Test Firebase connection
+async function testFirebaseConnection() {
+    try {
+        // Try to write a test document
+        const testResult = await db.collection('test').add({
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            message: 'Test connection successful'
+        });
+        
+        console.log('Firebase connection successful!', testResult.id);
+        alert('Firebase connection successful!');
+        
+        // Clean up by deleting the test document
+        await db.collection('test').doc(testResult.id).delete();
+        
+    } catch (error) {
+        console.error('Firebase connection error:', error);
+        alert('Firebase connection error: ' + error.message);
+    }
+}
+
+// Run the test
+testFirebaseConnection();
 </script>
 
 </body>
