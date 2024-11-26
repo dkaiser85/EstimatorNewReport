@@ -1446,44 +1446,40 @@ document.querySelector('.download-pdf').onclick = generatePDF;
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
 <script>
-// Your Firebase configuration (you'll get this from Firebase Console)
-const firebaseConfig = {
-    apiKey: "AIzaSyD633p4rebsdUD0daRrd0dHIMh_n6hl2Ac",
-    authDomain: "cmri-calculator.firebaseapp.com",
-    projectId: "cmri-calculator",
-    storageBucket: "cmri-calculator.firebasestorage.app",
-    messagingSenderId: "740570329582",
-    appId: "1:740570329582:web:fb426b5875e64005239eff",
-    measurementId: "G-FP80T226QJ"
-};
+// Wait for Firebase scripts to load
+window.addEventListener('load', function() {
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyD633p4rebsdUD0daRrd0dHIMh_n6hl2Ac",
+        authDomain: "cmri-calculator.firebaseapp.com",
+        projectId: "cmri-calculator",
+        storageBucket: "cmri-calculator.firebasestorage.app",
+        messagingSenderId: "740570329582",
+        appId: "1:740570329582:web:fb426b5875e64005239eff",
+        measurementId: "G-FP80T226QJ"
+    };
 
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-// Test Firebase connection
-async function testFirebaseConnection() {
-    try {
-        // Try to write a test document
-        const testResult = await db.collection('test').add({
-            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-            message: 'Test connection successful'
-        });
-        
-        console.log('Firebase connection successful!', testResult.id);
-        alert('Firebase connection successful!');
-        
-        // Clean up by deleting the test document
-        await db.collection('test').doc(testResult.id).delete();
-        
-    } catch (error) {
-        console.error('Firebase connection error:', error);
-        alert('Firebase connection error: ' + error.message);
+    // Test connection
+    async function testFirebaseConnection() {
+        try {
+            const testResult = await db.collection('test').add({
+                timestamp: new Date(),
+                message: 'Test connection successful'
+            });
+            console.log('Firebase connection successful!', testResult.id);
+            alert('Firebase connection successful!');
+        } catch (error) {
+            console.error('Firebase connection error:', error);
+            alert('Firebase connection error: ' + error.message);
+        }
     }
-}
 
-// Run the test
-testFirebaseConnection();
+    testFirebaseConnection();
+});
 </script>
 
 </body>
