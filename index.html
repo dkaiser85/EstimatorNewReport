@@ -1439,7 +1439,8 @@ window.addEventListener('load', function() {
     // Assign to global db variable
     db = firebase.firestore();
 
-    // Test connection
+    // Remove or comment out the test connection function
+    /* 
     async function testFirebaseConnection() {
         try {
             const testResult = await db.collection('test').add({
@@ -1453,8 +1454,8 @@ window.addEventListener('load', function() {
             alert('Firebase connection error: ' + error.message);
         }
     }
-
     testFirebaseConnection();
+    */
 });
 </script>
 
