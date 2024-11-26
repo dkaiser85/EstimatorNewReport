@@ -1455,56 +1455,6 @@ async function generatePDF() {
 // Update the click handlers
 document.querySelector('.download-pdf').onclick = generatePDF;
 
-// Update the share form submission
-shareForm.onsubmit = async (e) => {
-    e.preventDefault();
-    
-    const formData = {
-        name: document.getElementById('name').value,
-        company: document.getElementById('company').value,
-        email: document.getElementById('email').value,
-        laborCost: document.getElementById('totalLaborCost').value,
-        engagement: document.getElementById('employeeEngagement').value,
-        turnover: document.getElementById('turnoverPercentage').value,
-        lostLabor: document.getElementById('lostLaborCost').textContent,
-        onePercentChange: document.getElementById('onePercentChange').textContent,
-        totalLosses: document.getElementById('totalAnnualizedLosses').textContent,
-        timestamp: new Date().toISOString()
-    };
-
-    try {
-        // Show loading state
-        const submitButton = shareForm.querySelector('.share-submit');
-        const originalText = submitButton.textContent;
-        submitButton.textContent = 'Sharing...';
-        submitButton.disabled = true;
-
-        // Send to Google Sheets
-        await fetch('YOUR_GOOGLE_SCRIPT_URL', {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(formData)
-        });
-
-        // Generate PDF
-        await generatePDF();
-
-        // Show success message and close modal
-        alert('Results shared successfully!');
-        shareModal.style.display = 'none';
-        shareForm.reset(); // Reset the form
-    } catch (error) {
-        console.error('Error sharing results:', error);
-        alert('Error sharing results. Please try again.');
-    } finally {
-        // Reset button state
-        submitButton.textContent = originalText;
-        submitButton.disabled = false;
-    }
-};
 </script>
 
 </body>
