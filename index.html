@@ -7,7 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
     <!-- Viewport Meta Tag -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="mobile-web-app-capable" content="yes">
     <link rel="icon" type="image/png" sizes="192x192" href="./icons/CMRI192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="./icons/CMRI512.png">
     <link rel="apple-touch-icon" href="./icons/CMRI192.png">
@@ -458,25 +457,7 @@
             }
         }
 
-        /* Add install banner styles */
-        .install-banner {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 16px;
-            background: #6666CC;
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 1000;
-            display: none; /* Hidden by default */
-        }
-
-        .install-banner.show {
-            display: flex;
-        }
+       
 
         /* Add styles for the label wrapper */
         .input-label-wrapper {
@@ -1221,6 +1202,19 @@
         }
 
         setupTooltips();
+
+        // Add these event listeners to your code
+        document.addEventListener('DOMContentLoaded', function() {
+            // For the download button
+            document.querySelector('.share-button[data-action="download"]')?.addEventListener('click', function() {
+                handleSubmission('download');
+            });
+
+            // For the email button
+            document.querySelector('.share-button[data-action="email"]')?.addEventListener('click', function() {
+                handleSubmission('email');
+            });
+        });
     });
 
     function showInstallPromotion() {
