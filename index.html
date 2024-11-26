@@ -1300,8 +1300,6 @@ async function handleSubmission(action) {
         'action': action
     };
 
-    console.log('Form data collected:', formData);
-
     try {
         const button = action === 'download' ? 
             document.getElementById('downloadPdfBtn') : 
@@ -1310,26 +1308,25 @@ async function handleSubmission(action) {
         button.textContent = 'Processing...';
         button.disabled = true;
 
-        console.log('Attempting to send data to Google Sheet...');
-        
-        // Make sure this URL is correct
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbww3nSweOtdcNxkMrwQnESTAdXoWcBxMrjaLdGc892-BwDZF3fDeCmAjwxKBd12-nUTug/exec';
-        console.log('Using Google Script URL:', GOOGLE_SCRIPT_URL);
-
-        const response = await fetch(GOOGLE_SCRIPT_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(formData)
-        });
-
-        console.log('Response from Google Sheet:', response);
-
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
+        // Convert formData to URL-encoded string
+        const encodedData = new URLSearchParams();
+        for (const [key, value] of Object.entries(formData)) {
+            encodedData.append(key, value);
         }
 
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbww3nSweOtdcNxkMrwQnESTAdXoWcBxMrjaLdGc892-BwDZF3fDeCmAjwxKBd12-nUTug/exec';
+        
+        const response = await fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors', // Add this
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',  // Change this
+            },
+            body: encodedData.toString()  // Change this
+        });
+
+        // Since we're using no-cors, we can't check response.ok
+        // Instead, proceed with the action
         if (action === 'download') {
             await generatePDF();
             alert('Your PDF has been downloaded and results saved!');
