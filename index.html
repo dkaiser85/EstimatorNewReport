@@ -1128,28 +1128,7 @@
             });
         });
 
-        // Add this to your existing JavaScript
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('ServiceWorker registration successful');
-                    })
-                    .catch(err => {
-                        console.log('ServiceWorker registration failed: ', err);
-                    });
-            });
-        }
 
-        // Add install prompt handling
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            
-            // Show install button or banner
-            showInstallPromotion();
-        });
 
         // Add this to your existing DOMContentLoaded event listener
         function setupTooltips() {
@@ -1217,29 +1196,7 @@
         });
     });
 
-    function showInstallPromotion() {
-        const banner = document.createElement('div');
-        banner.className = 'install-banner';
-        banner.innerHTML = `
-            <div>Install this app on your device for easy access</div>
-            <button id="installBtn">Install</button>            
-            <button id="closeInstallBtn">✕</button>
-        `;
-        document.body.appendChild(banner);
-        
-        document.getElementById('installBtn').addEventListener('click', async () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                deferredPrompt = null;
-                banner.remove();
-            }
-        });
-        
-        document.getElementById('closeInstallBtn').addEventListener('click', () => {
-            banner.remove();
-        });
-    }
+    
 </script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
