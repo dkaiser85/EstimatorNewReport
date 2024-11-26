@@ -1284,22 +1284,6 @@ async function handleSubmission(action) {
         return;
     }
 
-    const formData = {
-        'Timestamp': new Date().toISOString(),
-        'Name': document.getElementById('name').value,
-        'Company': document.getElementById('company').value,
-        'Email': document.getElementById('email').value,
-        'Total Labor Spend (USD)': document.getElementById('totalLaborCost').value,
-        'Estimated Employee Engagement (%)': document.getElementById('employeeEngagement').value,
-        'Projected Turnover Percentage (%)': document.getElementById('turnoverPercentage').value,
-        'Overall Engagement': document.getElementById('engagementText').textContent,
-        'Return-On-Labor®': document.getElementById('returnOnLaborText').textContent,
-        '1% Shift': document.getElementById('onePercentChange').textContent,
-        'Annualized Lost Labor': document.getElementById('lostLaborCost').textContent,
-        'Report PDF link': '',
-        'action': action
-    };
-
     try {
         const button = action === 'download' ? 
             document.getElementById('downloadPdfBtn') : 
@@ -1308,25 +1292,31 @@ async function handleSubmission(action) {
         button.textContent = 'Processing...';
         button.disabled = true;
 
-        // Convert formData to URL-encoded string
-        const encodedData = new URLSearchParams();
-        for (const [key, value] of Object.entries(formData)) {
-            encodedData.append(key, value);
-        }
+        // Create FormData object
+        const formData = new FormData();
+        formData.append('Name', document.getElementById('name').value);
+        formData.append('Company', document.getElementById('company').value);
+        formData.append('Email', document.getElementById('email').value);
+        formData.append('Total Labor Spend (USD)', document.getElementById('totalLaborCost').value);
+        formData.append('Estimated Employee Engagement (%)', document.getElementById('employeeEngagement').value);
+        formData.append('Projected Turnover Percentage (%)', document.getElementById('turnoverPercentage').value);
+        formData.append('Overall Engagement', document.getElementById('engagementText').textContent);
+        formData.append('Return-On-Labor®', document.getElementById('returnOnLaborText').textContent);
+        formData.append('1% Shift', document.getElementById('onePercentChange').textContent);
+        formData.append('Annualized Lost Labor', document.getElementById('lostLaborCost').textContent);
+        formData.append('Annualized Total Losses', document.getElementById('totalAnnualizedLosses').textContent);
+        formData.append('Report PDF link', '');
+        formData.append('action', action);
 
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbww3nSweOtdcNxkMrwQnESTAdXoWcBxMrjaLdGc892-BwDZF3fDeCmAjwxKBd12-nUTug/exec';
         
-        const response = await fetch(GOOGLE_SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors', // Add this
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',  // Change this
-            },
-            body: encodedData.toString()  // Change this
+        // Send data to Google Apps Script
+        await fetch(GOOGLE_SCRIPT_URL + '?' + new URLSearchParams(formData), {
+            method: 'GET',  // Change to GET request
+            mode: 'no-cors'
         });
 
-        // Since we're using no-cors, we can't check response.ok
-        // Instead, proceed with the action
+        // Handle the action
         if (action === 'download') {
             await generatePDF();
             alert('Your PDF has been downloaded and results saved!');
