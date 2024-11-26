@@ -1275,61 +1275,59 @@ const closeModal = resultsModal.querySelector('.close-modal');
 
 // Function to handle form data submission
 async function handleSubmission(action) {
-    console.log('handleSubmission started with action:', action);
-    
     const form = document.getElementById('resultsForm');
     if (!form.checkValidity()) {
-        console.log('Form validation failed');
         form.reportValidity();
         return;
     }
 
+    const button = action === 'download' ? 
+        document.getElementById('downloadPdfBtn') : 
+        document.getElementById('emailResultsBtn');
+    const originalText = button.textContent;
+
     try {
-        const button = action === 'download' ? 
-            document.getElementById('downloadPdfBtn') : 
-            document.getElementById('emailResultsBtn');
-        const originalText = button.textContent;
         button.textContent = 'Processing...';
         button.disabled = true;
 
-        // Create FormData object
-        const formData = new FormData();
-        formData.append('Name', document.getElementById('name').value);
-        formData.append('Company', document.getElementById('company').value);
-        formData.append('Email', document.getElementById('email').value);
-        formData.append('Total Labor Spend (USD)', document.getElementById('totalLaborCost').value);
-        formData.append('Estimated Employee Engagement (%)', document.getElementById('employeeEngagement').value);
-        formData.append('Projected Turnover Percentage (%)', document.getElementById('turnoverPercentage').value);
-        formData.append('Overall Engagement', document.getElementById('engagementText').textContent);
-        formData.append('Return-On-Labor®', document.getElementById('returnOnLaborText').textContent);
-        formData.append('1% Shift', document.getElementById('onePercentChange').textContent);
-        formData.append('Annualized Lost Labor', document.getElementById('lostLaborCost').textContent);
-        formData.append('Annualized Total Losses', document.getElementById('totalAnnualizedLosses').textContent);
-        formData.append('Report PDF link', '');
-        formData.append('action', action);
+        // Create submission data
+        const submissionData = {
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            name: document.getElementById('name').value,
+            company: document.getElementById('company').value,
+            email: document.getElementById('email').value,
+            calculatorInputs: {
+                laborSpend: document.getElementById('totalLaborCost').value,
+                engagement: document.getElementById('employeeEngagement').value,
+                turnover: document.getElementById('turnoverPercentage').value
+            },
+            results: {
+                overallEngagement: document.getElementById('engagementText').textContent,
+                returnOnLabor: document.getElementById('returnOnLaborText').textContent,
+                onePercentShift: document.getElementById('onePercentChange').textContent,
+                lostLabor: document.getElementById('lostLaborCost').textContent,
+                totalLosses: document.getElementById('totalAnnualizedLosses').textContent
+            },
+            action: action
+        };
 
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbww3nSweOtdcNxkMrwQnESTAdXoWcBxMrjaLdGc892-BwDZF3fDeCmAjwxKBd12-nUTug/exec';
-        
-        // Send data to Google Apps Script
-        await fetch(GOOGLE_SCRIPT_URL + '?' + new URLSearchParams(formData), {
-            method: 'GET',  // Change to GET request
-            mode: 'no-cors'
-        });
+        // Save to Firebase
+        await db.collection('submissions').add(submissionData);
 
         // Handle the action
         if (action === 'download') {
             await generatePDF();
             alert('Your PDF has been downloaded and results saved!');
         } else {
-            alert('Your results have been sent to your email! Please check your inbox.');
+            alert('Your results have been saved successfully!');
         }
 
         resultsModal.style.display = 'none';
         resultsForm.reset();
 
     } catch (error) {
-        console.error('Error in handleSubmission:', error);
-        alert('There was an error processing your request. Please try again.');
+        console.error('Error:', error);
+        alert('There was an error saving your results. Please try again.');
     } finally {
         button.textContent = originalText;
         button.disabled = false;
@@ -1442,6 +1440,25 @@ async function generatePDF() {
 // Update the click handlers
 document.querySelector('.download-pdf').onclick = generatePDF;
 
+</script>
+
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+<script>
+// Your Firebase configuration (you'll get this from Firebase Console)
+const firebaseConfig = {
+    apiKey: "your-api-key",
+    authDomain: "your-auth-domain",
+    projectId: "your-project-id",
+    storageBucket: "your-storage-bucket",
+    messagingSenderId: "your-messaging-sender-id",
+    appId: "your-app-id"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 </script>
 
 </body>
