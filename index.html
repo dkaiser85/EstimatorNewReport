@@ -1392,101 +1392,104 @@ window.onclick = (e) => {
 <script>
 async function generatePDF() {
     try {
-        // Get the preview container
-        const container = document.createElement('div');
-        container.innerHTML = `
-            <div class="preview-container">
-                <div class="page">
-                    <h1>Profit Analysis Report</h1>
-                    <img src="https://static.showit.co/file/JNQ0xT5W_YRPIk_uSDJ7-Q/176740/3.png" 
-                         alt="The Culture MRI Logo" class="logo">
-                    <!-- ... rest of your HTML preview structure ... -->
+        // Create a template for the PDF content
+        const template = `
+            <div style="padding: 20px; font-family: Arial, sans-serif;">
+                <h1 style="color: #173248; text-align: center;">Profit Analysis Report</h1>
+                
+                <div style="margin: 20px 0;">
+                    <h3>Calculator Inputs:</h3>
+                    <p>Total Labor Spend: ${document.getElementById('totalLaborCost').value}</p>
+                    <p>Employee Engagement: ${document.getElementById('employeeEngagement').value}%</p>
+                    <p>Turnover Rate: ${document.getElementById('turnoverPercentage').value}%</p>
+                </div>
+                
+                <div style="margin: 20px 0;">
+                    <h3>Key Metrics:</h3>
+                    <p>Overall Engagement: ${document.getElementById('engagementText').textContent}</p>
+                    <p>Return-On-Labor®: ${document.getElementById('returnOnLaborText').textContent}</p>
+                    <p>1% Engagement Shift Impact: ${document.getElementById('onePercentChange').textContent}</p>
+                    <p>Lost Labor Cost: ${document.getElementById('lostLaborCost').textContent}</p>
+                    <p>Total Annualized Losses: ${document.getElementById('totalAnnualizedLosses').textContent}</p>
+                </div>
+                
+                <div style="margin-top: 40px; font-size: 12px; color: #666;">
+                    <p>Generated on ${new Date().toLocaleDateString()}</p>
+                    <p>© ${new Date().getFullYear()} The Culture MRI®. All Rights Reserved.</p>
                 </div>
             </div>
         `;
 
-        // Populate data
-        container.querySelector('#companyName').textContent = document.getElementById('company')?.value || 'Your Company';
-        container.querySelector('#reportDate').textContent = new Date().toLocaleDateString();
-        container.querySelector('#laborSpend').textContent = document.getElementById('totalLaborCost')?.value || '0';
-        container.querySelector('#engagement').textContent = document.getElementById('employeeEngagement')?.value || '0';
-        container.querySelector('#turnover').textContent = document.getElementById('turnoverPercentage')?.value || '0';
-        container.querySelector('#engagementValue').textContent = document.getElementById('engagementText')?.textContent || '0%';
-        container.querySelector('#rolValue').textContent = document.getElementById('returnOnLaborText')?.textContent || '0%';
-        container.querySelector('#onePercent').textContent = document.getElementById('onePercentChange')?.textContent || '$0';
-        container.querySelector('#lostLabor').textContent = document.getElementById('lostLaborCost')?.textContent || '$0';
-        container.querySelector('#totalLosses').textContent = document.getElementById('totalAnnualizedLosses')?.textContent || '$0';
+        // Create a temporary container
+        const container = document.createElement('div');
+        container.innerHTML = template;
+        document.body.appendChild(container);
 
-        // Convert to PDF
-        const pdf = new jspdf.jsPDF();
-        await html2pdf().from(container).set({
-            margin: [10, 10, 10, 10],
-            filename: `CMRI-Calculator-Results-${new Date().toISOString().split('T')[0]}.pdf`,
+        // Generate PDF using html2pdf with specific options
+        const opt = {
+            margin: 1,
+            filename: 'CMRI-Calculator-Results.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { scale: 2 },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        }).save();
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+
+        await html2pdf().set(opt).from(container).save();
+        document.body.removeChild(container);
 
     } catch (error) {
         console.error('Error generating PDF:', error);
-        alert('Error generating PDF: ' + error.message);
+        alert('Error generating PDF. Please try again.');
     }
 }
 
-function createEmailBody(data) {
-    return `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px;">
-            <img src="https://static.showit.co/file/cbs1CLd_Sfa1i4yvaojOWQ/176740/cmr_blue_dk_2i.png" 
-                 alt="The Culture MRI Logo" style="max-width: 250px; margin: 0 auto 30px; display: block;">
-            
-            <div style="font-size: 16px; margin-bottom: 20px;">
-                Dear ${data.name},
-            </div>
-
-            <div style="margin-bottom: 30px;">
-                <p>Thank you for using The Culture MRI® calculator. Attached you'll find your detailed Profit Analysis Report highlighting the connection between employee engagement and your organization's profitability.</p>
-
-                <p>Key findings from your analysis:</p>
-                <ul style="padding-left: 20px; margin-bottom: 25px;">
-                    <li style="margin-bottom: 10px;">Current Employee Engagement: ${data.engagement}%</li>
-                    <li style="margin-bottom: 10px;">Return-on-Labor®: ${data.rol}</li>
-                    <li style="margin-bottom: 10px;">Potential Annual Impact: ${data.impact}</li>
-                </ul>
-
-                <p>Ready to unlock your organization's full potential? Let's discuss how The Culture MRI® can help you transform these insights into measurable financial gains.</p>
-
-                <a href="https://theculturemri.com/schedule-a-demo" 
-                   style="display: inline-block; background: #6666CC; color: white; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 500; margin: 20px 0;">
-                    Schedule Your Demo →
-                </a>
-            </div>
-
-            <div style="font-size: 14px; color: #666; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
-                <p>Best regards,<br>
-                The Culture MRI® Team</p>
-                
-                <p style="font-size: 12px; color: #888;">
-                    This email was sent to ${data.email}.<br>
-                    © 2024 The Culture MRI®. All Rights Reserved.
-                </p>
-            </div>
-        </div>
-    `;
-}
-
-// Update handleSubmission for email
-if (action === 'email') {
-    const emailData = {
-        name: document.getElementById('name')?.value || '',
-        email: document.getElementById('email')?.value || '',
-        engagement: document.getElementById('employeeEngagement')?.value || '0',
-        rol: document.getElementById('returnOnLaborText')?.textContent || '0%',
-        impact: document.getElementById('onePercentChange')?.textContent || '$0'
-    };
-
+function handleEmail() {
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    
     const subject = encodeURIComponent('Your Culture MRI® Calculator Results');
-    const body = encodeURIComponent(createEmailBody(emailData));
-    window.location.href = `mailto:${emailData.email}?subject=${subject}&body=${body}`;
+    const body = encodeURIComponent(`
+Dear ${name},
+
+Thank you for using The Culture MRI® calculator. Here are your results:
+
+Calculator Inputs:
+- Total Labor Spend: ${document.getElementById('totalLaborCost').value}
+- Employee Engagement: ${document.getElementById('employeeEngagement').value}%
+- Turnover Rate: ${document.getElementById('turnoverPercentage').value}%
+
+Key Metrics:
+- Overall Engagement: ${document.getElementById('engagementText').textContent}
+- Return-On-Labor®: ${document.getElementById('returnOnLaborText').textContent}
+- 1% Engagement Shift Impact: ${document.getElementById('onePercentChange').textContent}
+- Lost Labor Cost: ${document.getElementById('lostLaborCost').textContent}
+- Total Annualized Losses: ${document.getElementById('totalAnnualizedLosses').textContent}
+
+Ready to learn more? Schedule a demo: https://theculturemri.com/schedule-a-demo
+
+Best regards,
+The Culture MRI® Team
+    `);
+
+    window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
 }
+
+// Update the button handlers
+document.getElementById('downloadPdfBtn').onclick = async () => {
+    if (document.getElementById('resultsForm').checkValidity()) {
+        await generatePDF();
+    } else {
+        document.getElementById('resultsForm').reportValidity();
+    }
+};
+
+document.getElementById('emailResultsBtn').onclick = () => {
+    if (document.getElementById('resultsForm').checkValidity()) {
+        handleEmail();
+    } else {
+        document.getElementById('resultsForm').reportValidity();
+    }
+};
 </script>
 
 <!-- Firebase Scripts -->
