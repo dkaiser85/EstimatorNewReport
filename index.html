@@ -1275,7 +1275,10 @@ const closeModal = resultsModal.querySelector('.close-modal');
 
 // Function to handle form data submission
 async function handleSubmission(action) {
-    console.log('handleSubmission started with action:', action);
+    console.log('handleSubmission started:', {
+        action,
+        timestamp: new Date().toISOString()
+    });
     
     const form = document.getElementById('resultsForm');
     if (!form.checkValidity()) {
@@ -1285,54 +1288,55 @@ async function handleSubmission(action) {
     }
 
     try {
-        const button = action === 'download' ? 
-            document.getElementById('downloadPdfBtn') : 
-            document.getElementById('emailResultsBtn');
-        const originalText = button.textContent;
-        button.textContent = 'Processing...';
-        button.disabled = true;
-
-        // Create FormData object
+        // Log form data being sent
         const formData = new FormData();
-        formData.append('Name', document.getElementById('name').value);
-        formData.append('Company', document.getElementById('company').value);
-        formData.append('Email', document.getElementById('email').value);
-        formData.append('Total Labor Spend (USD)', document.getElementById('totalLaborCost').value);
-        formData.append('Estimated Employee Engagement (%)', document.getElementById('employeeEngagement').value);
-        formData.append('Projected Turnover Percentage (%)', document.getElementById('turnoverPercentage').value);
-        formData.append('Overall Engagement', document.getElementById('engagementText').textContent);
-        formData.append('Return-On-Labor®', document.getElementById('returnOnLaborText').textContent);
-        formData.append('1% Shift', document.getElementById('onePercentChange').textContent);
-        formData.append('Annualized Lost Labor', document.getElementById('lostLaborCost').textContent);
-        formData.append('Annualized Total Losses', document.getElementById('totalAnnualizedLosses').textContent);
-        formData.append('Report PDF link', '');
+        const formFields = {
+            'Name': document.getElementById('name').value,
+            'Company': document.getElementById('company').value,
+            'Email': document.getElementById('email').value,
+            'Total Labor Spend': document.getElementById('totalLaborCost').value,
+            'Employee Engagement': document.getElementById('employeeEngagement').value,
+            'Turnover': document.getElementById('turnoverPercentage').value
+        };
+        
+        console.log('Form data being sent:', formFields);
+
+        // Add form fields to FormData
+        Object.entries(formFields).forEach(([key, value]) => {
+            formData.append(key, value);
+        });
         formData.append('action', action);
 
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbww3nSweOtdcNxkMrwQnESTAdXoWcBxMrjaLdGc892-BwDZF3fDeCmAjwxKBd12-nUTug/exec';
         
+        console.log('Sending request to:', GOOGLE_SCRIPT_URL);
+        
         // Send data to Google Apps Script
-        await fetch(GOOGLE_SCRIPT_URL + '?' + new URLSearchParams(formData), {
-            method: 'GET',  // Change to GET request
+        const response = await fetch(GOOGLE_SCRIPT_URL + '?' + new URLSearchParams(formData), {
+            method: 'GET',
             mode: 'no-cors'
+        });
+        
+        console.log('Request completed:', {
+            status: response.status,
+            type: response.type
         });
 
         // Handle the action
         if (action === 'download') {
+            console.log('Generating PDF...');
             await generatePDF();
-            alert('Your PDF has been downloaded and results saved!');
-        } else {
-            alert('Your results have been sent to your email! Please check your inbox.');
+            console.log('PDF generated successfully');
         }
 
-        resultsModal.style.display = 'none';
-        resultsForm.reset();
-
+        console.log('Operation completed successfully');
+        
     } catch (error) {
-        console.error('Error in handleSubmission:', error);
+        console.error('Error in handleSubmission:', {
+            error: error.message,
+            stack: error.stack
+        });
         alert('There was an error processing your request. Please try again.');
-    } finally {
-        button.textContent = originalText;
-        button.disabled = false;
     }
 }
 
