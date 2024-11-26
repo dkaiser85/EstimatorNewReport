@@ -1267,95 +1267,72 @@ document.querySelector('.download-pdf').onclick = async () => {
 <script>
 // Add this function after your existing JavaScript
 async function generatePDF() {
-    // Create a clone of the calculator container to modify
-    const container = document.querySelector('.calculator-container').cloneNode(true);
-    
-    // Remove input section and buttons from the clone
-    const inputSection = container.querySelector('.input-section');
-    const actionButtons = container.querySelector('.action-buttons');
-    inputSection.remove();
-    actionButtons.remove();
+    // Get the data
+    const data = {
+        laborCost: document.getElementById('totalLaborCost').value,
+        engagement: document.getElementById('employeeEngagement').value,
+        turnover: document.getElementById('turnoverPercentage').value,
+        lostLabor: document.getElementById('lostLaborCost').textContent,
+        onePercentChange: document.getElementById('onePercentChange').textContent,
+        totalLosses: document.getElementById('totalAnnualizedLosses').textContent
+    };
 
-    // Add the current date to the report
-    const dateDiv = document.createElement('div');
-    dateDiv.style.textAlign = 'right';
-    dateDiv.style.marginBottom = '20px';
-    dateDiv.style.color = '#6B7D8D';
-    dateDiv.innerHTML = new Date().toLocaleDateString('en-US', {
+    // Create PDF directly
+    const pdf = new jspdf.jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+    });
+
+    // Add content directly to PDF
+    pdf.setFont("helvetica", "normal");
+    
+    // Header
+    pdf.setFontSize(24);
+    pdf.text("Profitability Loss Report", 105, 20, { align: "center" });
+    
+    // Date
+    pdf.setFontSize(12);
+    pdf.setTextColor(107, 125, 141); // #6B7D8D
+    pdf.text(new Date().toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
         day: 'numeric'
-    });
-    container.insertBefore(dateDiv, container.firstChild);
+    }), 195, 20, { align: "right" });
 
-    // Add summary of inputs
-    const inputSummary = document.createElement('div');
-    inputSummary.style.marginBottom = '30px';
-    inputSummary.style.padding = '20px';
-    inputSummary.style.backgroundColor = '#f8f9fa';
-    inputSummary.style.borderRadius = '8px';
-    inputSummary.innerHTML = `
-        <h3 style="margin-top: 0; color: #333333;">Input Summary</h3>
-        <p style="margin: 5px 0; color: #6B7D8D;">Total Labor Spend: ${document.getElementById('totalLaborCost').value}</p>
-        <p style="margin: 5px 0; color: #6B7D8D;">Employee Engagement: ${document.getElementById('employeeEngagement').value}%</p>
-        <p style="margin: 5px 0; color: #6B7D8D;">Turnover Rate: ${document.getElementById('turnoverPercentage').value}%</p>
-    `;
-    container.insertBefore(inputSummary, container.querySelector('.results-section'));
+    // Input Summary
+    pdf.setFontSize(16);
+    pdf.setTextColor(51, 51, 51); // #333333
+    pdf.text("Input Summary", 20, 40);
 
-    // Temporarily append the clone to the document for html2canvas
-    container.style.position = 'absolute';
-    container.style.left = '-9999px';
-    document.body.appendChild(container);
+    pdf.setFontSize(12);
+    pdf.setTextColor(107, 125, 141);
+    pdf.text([
+        `Total Labor Spend: ${data.laborCost}`,
+        `Employee Engagement: ${data.engagement}%`,
+        `Turnover Rate: ${data.turnover}%`
+    ], 20, 55);
 
-    try {
-        // Modify canvas generation settings
-        const canvas = await html2canvas(container, {
-            scale: 2, // Increased for better quality
-            useCORS: true,
-            letterRendering: true, // Improves text rendering
-            allowTaint: true,
-            logging: false,
-            onrendered: function(canvas) {
-                canvas.getContext('2d').textRendering = "optimizeLegibility";
-            }
-        });
+    // Results
+    pdf.setFontSize(16);
+    pdf.setTextColor(51, 51, 51);
+    pdf.text("Financial Impact", 20, 90);
 
-        // Modify PDF generation settings
-        const imgWidth = 210; // A4 width in mm
-        const pageHeight = 297; // A4 height in mm
-        const imgHeight = canvas.height * imgWidth / canvas.width;
-        
-        const pdf = new jspdf.jsPDF({
-            orientation: 'portrait',
-            unit: 'mm',
-            format: 'a4',
-            compress: true,
-            precision: 4, // Increase precision for better text rendering
-            hotfixes: ["px_scaling"] // Add hotfix for scaling issues
-        });
+    pdf.setFontSize(12);
+    pdf.setTextColor(107, 125, 141);
+    pdf.text([
+        `Lost Labor Cost: ${data.lostLabor}`,
+        `1% Engagement Shift Impact: ${data.onePercentChange}`,
+        `Total Annualized Losses: ${data.totalLosses}`
+    ], 20, 105);
 
-        // Add image with better quality settings
-        pdf.addImage(
-            canvas.toDataURL('image/png', 1.0), // Highest quality
-            'PNG', 
-            0, 
-            0, 
-            imgWidth, 
-            imgHeight,
-            undefined,
-            'FAST',
-            0 // No rotation
-        );
+    // Footer
+    pdf.setFontSize(10);
+    pdf.setTextColor(119, 119, 119);
+    pdf.text("© 2024 The Culture MRI®. All Rights Reserved.", 105, 280, { align: "center" });
 
-        // Save with optimized filename
-        pdf.save(`CMRI-Profit-Report-${new Date().toISOString().split('T')[0]}.pdf`);
-    } catch (error) {
-        console.error('Error generating PDF:', error);
-        alert('Error generating PDF. Please try again.');
-    } finally {
-        // Clean up
-        document.body.removeChild(container);
-    }
+    // Save PDF
+    pdf.save(`CMRI-Profit-Report-${new Date().toISOString().split('T')[0]}.pdf`);
 }
 
 // Update the click handlers
