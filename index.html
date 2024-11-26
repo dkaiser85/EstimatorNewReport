@@ -1293,10 +1293,18 @@ async function handleSubmission(action) {
         'Return-On-Labor®': document.getElementById('returnOnLaborText').textContent,
         '1% Shift': document.getElementById('onePercentChange').textContent,
         'Annualized Lost Labor': document.getElementById('lostLaborCost').textContent,
-        'Report PDF link': ''
+        'Report PDF link': '',
+        'action': action // Add this to indicate whether to send email
     };
 
     try {
+        const button = action === 'download' ? 
+            document.getElementById('downloadPdfBtn') : 
+            document.getElementById('emailResultsBtn');
+        const originalText = button.textContent;
+        button.textContent = 'Processing...';
+        button.disabled = true;
+
         // Send to Google Sheets
         await fetch('YOUR_GOOGLE_SCRIPT_URL', {
             method: 'POST',
@@ -1311,11 +1319,14 @@ async function handleSubmission(action) {
             await generatePDF();
             alert('Your PDF has been downloaded and results saved!');
         } else {
-            alert('Your results have been sent to your email!');
+            alert('Your results have been sent to your email! Please check your inbox.');
         }
 
         resultsModal.style.display = 'none';
         resultsForm.reset();
+
+        button.textContent = originalText;
+        button.disabled = false;
     } catch (error) {
         console.error('Error:', error);
         alert('There was an error processing your request. Please try again.');
@@ -1453,7 +1464,7 @@ shareForm.onsubmit = async (e) => {
         submitButton.disabled = true;
 
         // Send to Google Sheets
-        await fetch('https://script.google.com/macros/s/AKfycbwV60a1VypnOv0Vz9A_y17cdVbkHV-iRVcJJJWelz8wYaH6QjEUsj69pKVwO2o2HCAqMQ/exec', {
+        await fetch('YOUR_GOOGLE_SCRIPT_URL', {
             method: 'POST',
             mode: 'no-cors',
             headers: {
