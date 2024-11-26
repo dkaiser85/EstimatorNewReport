@@ -1275,21 +1275,14 @@ const closeModal = resultsModal.querySelector('.close-modal');
 
 // Function to handle form data submission
 async function handleSubmission(action) {
+    console.log('handleSubmission called with action:', action); // Debug log
     const form = document.getElementById('resultsForm');
     if (!form.checkValidity()) {
         form.reportValidity();
         return;
     }
 
-    const button = action === 'download' ? 
-        document.getElementById('downloadPdfBtn') : 
-        document.getElementById('emailResultsBtn');
-    const originalText = button.textContent;
-
     try {
-        button.textContent = 'Processing...';
-        button.disabled = true;
-
         // Create submission data
         const submissionData = {
             timestamp: firebase.firestore.FieldValue.serverTimestamp(),
@@ -1300,42 +1293,28 @@ async function handleSubmission(action) {
                 laborSpend: document.getElementById('totalLaborCost').value,
                 engagement: document.getElementById('employeeEngagement').value,
                 turnover: document.getElementById('turnoverPercentage').value
-            },
-            results: {
-                overallEngagement: document.getElementById('engagementText').textContent,
-                returnOnLabor: document.getElementById('returnOnLaborText').textContent,
-                onePercentShift: document.getElementById('onePercentChange').textContent,
-                lostLabor: document.getElementById('lostLaborCost').textContent,
-                totalLosses: document.getElementById('totalAnnualizedLosses').textContent
-            },
-            action: action
+            }
         };
 
+        console.log('Attempting to save data:', submissionData); // Debug log
+
         // Save to Firebase
-        await db.collection('submissions').add(submissionData);
+        const docRef = await db.collection('submissions').add(submissionData);
+        console.log('Document written with ID:', docRef.id); // Debug log
 
-        // Handle the action
-        if (action === 'download') {
-            await generatePDF();
-            alert('Your PDF has been downloaded and results saved!');
-        } else {
-            alert('Your results have been saved successfully!');
-        }
-
+        alert('Your results have been saved successfully!');
         resultsModal.style.display = 'none';
         resultsForm.reset();
 
     } catch (error) {
-        console.error('Error:', error);
-        alert('There was an error saving your results. Please try again.');
-    } finally {
-        button.textContent = originalText;
-        button.disabled = false;
+        console.error('Error in handleSubmission:', error);
+        alert('Error saving results: ' + error.message);
     }
 }
 
 // Show modal when main button is clicked
 document.getElementById('downloadResultsBtn').onclick = () => {
+    console.log('Main download button clicked'); // Debug log
     const laborCost = document.getElementById('totalLaborCost').value;
     const engagement = document.getElementById('employeeEngagement').value;
     const turnover = document.getElementById('turnoverPercentage').value;
